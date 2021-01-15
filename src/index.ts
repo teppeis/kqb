@@ -1,9 +1,9 @@
-export const createBuilder = <FieldDefs extends FieldDefinitionsType>() =>
+export const createBuilder = <FieldDefs extends FieldDefinitionsType = any>() =>
   ({
     builder: new Builder(),
     field: conditionCreator,
   } as {
-    builder: Builder;
+    builder: Builder<FieldDefs>;
     field: ConditionCreator<FieldDefs>;
   });
 
@@ -54,18 +54,21 @@ class Condition<T> {
     this.#value = value;
   }
   toQuery(): string {
-    return `${this.#fieldCode} ${this.#op} "${escapeStringLiteral(String(this.#value))}"`;
+    return `${this.#fieldCode} ${this.#op} "${esc(String(this.#value))}"`;
   }
 }
 
-function escapeStringLiteral(str: string): string {
+/**
+ * Escape string literal in query parameters
+ */
+function esc(str: string): string {
   return str.replace(/"/g, '\\"');
 }
 
 type OrderByDirection = "asc" | "desc";
-class Builder {
+class Builder<FieldDefs extends FieldDefinitionsType> {
   #condisions: Condition<any>[] = [];
-  #orderByList: { field: string; direction: OrderByDirection }[] = [];
+  #orderByList: { field: OrderByTargetFieldNames<FieldDefs>; direction: OrderByDirection }[] = [];
   #limit: number | null = null;
   #offset: number | null = null;
 
@@ -90,20 +93,23 @@ class Builder {
     }
     return buf.join(" ");
   }
-  orderBy(field: string, direction: OrderByDirection): Builder {
+  where(condition: Condition<any>): Builder<FieldDefs> {
+    this.#condisions.push(condition);
+    return this;
+  }
+  orderBy(
+    field: OrderByTargetFieldNames<FieldDefs>,
+    direction: OrderByDirection
+  ): Builder<FieldDefs> {
     this.#orderByList.push({ field, direction });
     return this;
   }
-  limit(numberOfRows: number): Builder {
+  limit(numberOfRows: number): Builder<FieldDefs> {
     this.#limit = numberOfRows;
     return this;
   }
-  offset(offset: number): Builder {
+  offset(offset: number): Builder<FieldDefs> {
     this.#offset = offset;
-    return this;
-  }
-  where(condition: Condition<any>): Builder {
-    this.#condisions.push(condition);
     return this;
   }
 }
