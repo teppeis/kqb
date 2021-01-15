@@ -60,3 +60,48 @@ describe("Condition", () => {
     expect(field("foo").notLike("bar").toQuery()).toBe(`foo not like "bar"`);
   });
 });
+
+describe("Condition with field definitions", () => {
+  type Defs = {
+    name: "SINGLE_LINE_TEXT";
+    age: "NUMBER";
+  };
+
+  describe("SINGLE_LINE_TEXT", () => {
+    test("eq()", () => {
+      const { field } = createBuilder<Defs>();
+      expect(field("name").eq("foo").toQuery()).toBe(`name = "foo"`);
+    });
+
+    test("eq(): cannnot accepts a number value", () => {
+      const { field } = createBuilder<Defs>();
+      // @ts-expect-error
+      field("name").eq(10);
+    });
+
+    test("like()", () => {
+      const { field } = createBuilder<Defs>();
+      expect(field("name").like("foo").toQuery()).toBe(`name like "foo"`);
+    });
+  });
+
+  describe("NUMBER", () => {
+    test("eq() accepts a number value", () => {
+      const { field } = createBuilder<Defs>();
+      expect(field("age").eq("10").toQuery()).toBe(`age = "10"`);
+    });
+
+    test("eq() accepts a number value", () => {
+      const { field } = createBuilder<Defs>();
+      expect(field("age").eq(10).toQuery()).toBe(`age = "10"`);
+    });
+
+    test("doesn't have like() or notLike()", () => {
+      const { field } = createBuilder<Defs>();
+      // @ts-expect-error
+      field("age").like("foo");
+      // @ts-expect-error
+      field("age").notLike("foo");
+    });
+  });
+});

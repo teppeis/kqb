@@ -1,13 +1,31 @@
-export const createBuilder = () => ({
-  builder: new Builder(),
-  field: conditionCreator,
-});
+export const createBuilder = <FieldDefs extends FieldDefinitionsType>() =>
+  ({
+    builder: new Builder(),
+    field: conditionCreator,
+  } as {
+    builder: Builder;
+    field: ConditionCreator<FieldDefs>;
+  });
 
-function conditionCreator<T = string>(fieldCode: string) {
-  return new Operator<T>(fieldCode);
-}
+type ConditionCreator<FieldDefs extends FieldDefinitionsType> = <FieldCode extends keyof FieldDefs>(
+  fieldCode: FieldCode
+) => string extends keyof FieldDefs ? Operator : FieldTypeOperators[FieldDefs[FieldCode]];
 
-class Operator<T = string> {
+const conditionCreator = (fieldCode: string) => {
+  return new Operator(fieldCode);
+};
+
+type FieldTypeOperators = {
+  SINGLE_LINE_TEXT: Pick<Operator<string>, "eq" | "notEq" | "like" | "notLike">;
+  NUMBER: Pick<Operator<string | number>, "eq" | "notEq">;
+};
+type FieldDefinitionsType = Record<string, keyof FieldTypeOperators>;
+type SortableFieldTypes = "NUMBER";
+type OrderByTargetFieldNames<T> = {
+  [K in keyof T]: T[K] extends SortableFieldTypes ? K : never;
+}[keyof T];
+
+class Operator<T = string | number> {
   #field: string;
   constructor(fieldCode: string) {
     this.#field = fieldCode;
@@ -18,15 +36,15 @@ class Operator<T = string> {
   notEq(value: T): Condition<T> {
     return new Condition(this.#field, "!=", value);
   }
-  like(value: T): Condition<T> {
+  like(value: string): Condition<string> {
     return new Condition(this.#field, "like", value);
   }
-  notLike(value: T): Condition<T> {
+  notLike(value: string): Condition<string> {
     return new Condition(this.#field, "not like", value);
   }
 }
 
-class Condition<T = string> {
+class Condition<T> {
   #fieldCode: string;
   #op: string;
   #value: T;
@@ -46,7 +64,7 @@ function escapeStringLiteral(str: string): string {
 
 type OrderByDirection = "asc" | "desc";
 class Builder {
-  #condisions: Condition[] = [];
+  #condisions: Condition<any>[] = [];
   #orderByList: { field: string; direction: OrderByDirection }[] = [];
   #limit: number | null = null;
   #offset: number | null = null;
@@ -84,10 +102,8 @@ class Builder {
     this.#offset = offset;
     return this;
   }
-  where(condition: Condition): Builder {
+  where(condition: Condition<any>): Builder {
     this.#condisions.push(condition);
     return this;
   }
 }
-
-interface Condition {}
