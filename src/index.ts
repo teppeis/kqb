@@ -1,22 +1,13 @@
-export const createBuilder = <FieldDefs extends FieldDefinitionsTypes = any>() =>
-  ({
-    builder: new Builder(),
-    field: conditionCreator,
-  } as {
-    builder: Builder<FieldDefs>;
-    field: ConditionCreator<FieldDefs>;
-  });
+export const createBuilder = <FieldDefs extends FieldDefinitionsTypes = any>() => ({
+  builder: new Builder<FieldDefs>(),
+  field: <FieldCode extends StringKeyOf<FieldDefs>>(fieldCode: FieldCode) => {
+    return new Operator(fieldCode) as string extends StringKeyOf<FieldDefs>
+      ? Operator // when FieldDefs is omitted
+      : FieldTypeOperators[FieldDefs[FieldCode]];
+  },
+});
 
-type ConditionCreator<FieldDefs extends FieldDefinitionsTypes> = <
-  FieldCode extends keyof FieldDefs
->(
-  fieldCode: FieldCode
-) => string extends keyof FieldDefs ? Operator : FieldTypeOperators[FieldDefs[FieldCode]];
-
-const conditionCreator = (fieldCode: string) => {
-  return new Operator(fieldCode);
-};
-
+type StringKeyOf<T> = Extract<keyof T, string>;
 type FieldTypeOperators = {
   SINGLE_LINE_TEXT: Pick<Operator<string>, "eq" | "notEq" | "like" | "notLike">;
   NUMBER: Pick<Operator<string | number>, "eq" | "notEq">;
@@ -73,6 +64,7 @@ class Operator<T = string | number> {
 interface Condition {
   toQuery(): string;
 }
+
 class SingleCondition<T> implements Condition {
   #field: string;
   #op: string;
@@ -105,21 +97,6 @@ class InCondition<T> implements Condition {
   }
 }
 
-/**
- * Escape string literal in query parameters
- */
-function esc(str: string): string {
-  return str.replace(/"/g, '\\"');
-}
-
-export const and = (condition: Condition, ...conditions: Condition[]) => {
-  return new AndOrCondition("and", condition, ...conditions);
-};
-
-export const or = (condition: Condition, ...conditions: Condition[]) => {
-  return new AndOrCondition("or", condition, ...conditions);
-};
-
 class AndOrCondition implements Condition {
   #conditions: Condition[];
   #op: "and" | "or";
@@ -132,7 +109,27 @@ class AndOrCondition implements Condition {
   }
 }
 
+export const and = (condition: Condition, ...conditions: Condition[]) => {
+  return new AndOrCondition("and", condition, ...conditions);
+};
+
+export const or = (condition: Condition, ...conditions: Condition[]) => {
+  return new AndOrCondition("or", condition, ...conditions);
+};
+
+/**
+ * Escape string literal in query parameters
+ */
+function esc(str: string): string {
+  return str.replace(/"/g, '\\"');
+}
+
 type OrderByDirection = "asc" | "desc";
+type OrderByTargetPair<FieldDefs> = [
+  field: OrderByTargetFieldNames<FieldDefs>,
+  direction: OrderByDirection
+];
+
 class Builder<FieldDefs extends FieldDefinitionsTypes> {
   #condisions: { joiner: "and" | "or"; condition: Condition }[] = [];
   #orderByList: { field: OrderByTargetFieldNames<FieldDefs>; direction: OrderByDirection }[] = [];
@@ -207,8 +204,3 @@ class Builder<FieldDefs extends FieldDefinitionsTypes> {
     return this;
   }
 }
-
-type OrderByTargetPair<FieldDefs> = [
-  field: OrderByTargetFieldNames<FieldDefs>,
-  direction: OrderByDirection
-];
