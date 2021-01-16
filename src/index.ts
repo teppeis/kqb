@@ -81,7 +81,7 @@ function esc(str: string): string {
 
 type OrderByDirection = "asc" | "desc";
 class Builder<FieldDefs extends FieldDefinitionsTypes> {
-  #condisions: Condition<any>[] = [];
+  #condisions: { joiner: "and" | "or"; condition: Condition<any> }[] = [];
   #orderByList: { field: OrderByTargetFieldNames<FieldDefs>; direction: OrderByDirection }[] = [];
   #limit: number | null = null;
   #offset: number | null = null;
@@ -89,7 +89,14 @@ class Builder<FieldDefs extends FieldDefinitionsTypes> {
   build(): string {
     const buf: string[] = [];
     if (this.#condisions.length > 0) {
-      buf.push(...this.#condisions.map((condition) => condition.toQuery()));
+      buf.push(
+        this.#condisions
+          .map(
+            ({ joiner, condition }, index) =>
+              `${index > 0 ? `${joiner} ` : ""}${condition.toQuery()}`
+          )
+          .join(" ")
+      );
     }
     if (this.#orderByList.length > 0) {
       buf.push("order by");
@@ -104,7 +111,14 @@ class Builder<FieldDefs extends FieldDefinitionsTypes> {
     return buf.join(" ");
   }
   where(condition: Condition<any>): Builder<FieldDefs> {
-    this.#condisions.push(condition);
+    return this.and(condition);
+  }
+  and(condition: Condition<any>): Builder<FieldDefs> {
+    this.#condisions.push({ joiner: "and", condition });
+    return this;
+  }
+  or(condition: Condition<any>): Builder<FieldDefs> {
+    this.#condisions.push({ joiner: "or", condition });
     return this;
   }
   orderBy(

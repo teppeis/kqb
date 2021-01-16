@@ -32,6 +32,20 @@ describe("Builder", () => {
     const { builder, field } = createBuilder();
     expect(builder.where(field("foo").eq("bar")).build()).toBe(`foo = "bar"`);
   });
+
+  test("where().and()", () => {
+    const { builder, field } = createBuilder();
+    expect(builder.where(field("foo").eq("bar")).and(field("baz").eq("qux")).build()).toBe(
+      `foo = "bar" and baz = "qux"`
+    );
+  });
+
+  test("where().or()", () => {
+    const { builder, field } = createBuilder();
+    expect(builder.where(field("foo").eq("bar")).or(field("baz").eq("qux")).build()).toBe(
+      `foo = "bar" or baz = "qux"`
+    );
+  });
 });
 
 describe("Condition", () => {
