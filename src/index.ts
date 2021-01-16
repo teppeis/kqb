@@ -1,4 +1,4 @@
-export const createBuilder = <FieldDefs extends FieldDefinitionsType = any>() =>
+export const createBuilder = <FieldDefs extends FieldDefinitionsTypes = any>() =>
   ({
     builder: new Builder(),
     field: conditionCreator,
@@ -7,7 +7,9 @@ export const createBuilder = <FieldDefs extends FieldDefinitionsType = any>() =>
     field: ConditionCreator<FieldDefs>;
   });
 
-type ConditionCreator<FieldDefs extends FieldDefinitionsType> = <FieldCode extends keyof FieldDefs>(
+type ConditionCreator<FieldDefs extends FieldDefinitionsTypes> = <
+  FieldCode extends keyof FieldDefs
+>(
   fieldCode: FieldCode
 ) => string extends keyof FieldDefs ? Operator : FieldTypeOperators[FieldDefs[FieldCode]];
 
@@ -19,7 +21,7 @@ type FieldTypeOperators = {
   SINGLE_LINE_TEXT: Pick<Operator<string>, "eq" | "notEq" | "like" | "notLike">;
   NUMBER: Pick<Operator<string | number>, "eq" | "notEq">;
 };
-type FieldDefinitionsType = Record<string, keyof FieldTypeOperators>;
+type FieldDefinitionsTypes = Record<string, keyof FieldTypeOperators>;
 type SortableFieldTypes = "NUMBER";
 type OrderByTargetFieldNames<T> = {
   [K in keyof T]: T[K] extends SortableFieldTypes ? K : never;
@@ -30,31 +32,43 @@ class Operator<T = string | number> {
   constructor(fieldCode: string) {
     this.#field = fieldCode;
   }
+  /**
+   * `=` operator
+   */
   eq(value: T): Condition<T> {
     return new Condition(this.#field, "=", value);
   }
+  /**
+   * `!=` operator
+   */
   notEq(value: T): Condition<T> {
     return new Condition(this.#field, "!=", value);
   }
+  /**
+   * `like` operator
+   */
   like(value: string): Condition<string> {
     return new Condition(this.#field, "like", value);
   }
+  /**
+   * `not like` operator
+   */
   notLike(value: string): Condition<string> {
     return new Condition(this.#field, "not like", value);
   }
 }
 
 class Condition<T> {
-  #fieldCode: string;
+  #field: string;
   #op: string;
   #value: T;
   constructor(fieldCode: string, op: string, value: T) {
-    this.#fieldCode = fieldCode;
+    this.#field = fieldCode;
     this.#op = op;
     this.#value = value;
   }
   toQuery(): string {
-    return `${this.#fieldCode} ${this.#op} "${esc(String(this.#value))}"`;
+    return `${this.#field} ${this.#op} "${esc(String(this.#value))}"`;
   }
 }
 
@@ -66,7 +80,7 @@ function esc(str: string): string {
 }
 
 type OrderByDirection = "asc" | "desc";
-class Builder<FieldDefs extends FieldDefinitionsType> {
+class Builder<FieldDefs extends FieldDefinitionsTypes> {
   #condisions: Condition<any>[] = [];
   #orderByList: { field: OrderByTargetFieldNames<FieldDefs>; direction: OrderByDirection }[] = [];
   #limit: number | null = null;
@@ -79,11 +93,7 @@ class Builder<FieldDefs extends FieldDefinitionsType> {
     }
     if (this.#orderByList.length > 0) {
       buf.push("order by");
-      const fields: string[] = [];
-      this.#orderByList.forEach(({ field, direction }) => {
-        fields.push(`${field} ${direction}`);
-      });
-      buf.push(fields.join(", "));
+      buf.push(this.#orderByList.map(({ field, direction }) => `${field} ${direction}`).join(", "));
     }
     if (this.#limit != null) {
       buf.push(`limit ${this.#limit}`);
