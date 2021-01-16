@@ -177,8 +177,25 @@ class Builder<FieldDefs extends FieldDefinitionsTypes> {
   orderBy(
     field: OrderByTargetFieldNames<FieldDefs>,
     direction: OrderByDirection
-  ): Builder<FieldDefs> {
-    this.#orderByList.push({ field, direction });
+  ): Builder<FieldDefs>;
+  orderBy(
+    pair: OrderByTargetPair<FieldDefs>,
+    ...pairs: OrderByTargetPair<FieldDefs>[]
+  ): Builder<FieldDefs>;
+  orderBy(...args: OrderByTargetPair<FieldDefs> | OrderByTargetPair<FieldDefs>[]) {
+    if (args.length === 0) {
+      throw new TypeError("orderBy() requires at least one argument");
+    }
+    // orderBy(["foo", "asc"], ["bar", "desc"])
+    let pairs = args as OrderByTargetPair<FieldDefs>[];
+    if (args.length === 2) {
+      const [mayBeField, mayBeDirection] = args;
+      if (!Array.isArray(mayBeField) && !Array.isArray(mayBeDirection)) {
+        // orderBy("foo", "asc")
+        pairs = [[mayBeField, mayBeDirection]];
+      }
+    }
+    this.#orderByList.push(...pairs.map(([field, direction]) => ({ field, direction })));
     return this;
   }
   limit(numberOfRows: number): Builder<FieldDefs> {
@@ -190,3 +207,8 @@ class Builder<FieldDefs extends FieldDefinitionsTypes> {
     return this;
   }
 }
+
+type OrderByTargetPair<FieldDefs> = [
+  field: OrderByTargetFieldNames<FieldDefs>,
+  direction: OrderByDirection
+];

@@ -11,9 +11,16 @@ describe("Builder", () => {
     expect(builder.orderBy("foo", "asc").build()).toBe("order by foo asc");
   });
 
-  test("orderBy(): multiple", () => {
+  test("orderBy(): multiple calls", () => {
     const { builder } = createBuilder();
     expect(builder.orderBy("foo", "asc").orderBy("bar", "desc").build()).toBe(
+      "order by foo asc, bar desc"
+    );
+  });
+
+  test("orderBy(): multiple args", () => {
+    const { builder } = createBuilder();
+    expect(builder.orderBy(["foo", "asc"], ["bar", "desc"]).build()).toBe(
       "order by foo asc, bar desc"
     );
   });
