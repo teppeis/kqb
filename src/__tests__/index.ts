@@ -90,7 +90,23 @@ describe("Condition", () => {
     expect(field("foo").notLike("bar").toQuery()).toBe(`foo not like "bar"`);
   });
 
-  test("in()", () => {
+  test("in(): at least one value", () => {
+    const { field } = createBuilder();
+    // @ts-expect-error
+    field("foo").in();
+  });
+
+  test("in(): one value", () => {
+    const { field } = createBuilder();
+    expect(field("foo").in(`b"a"r`).toQuery()).toBe(`foo in ("b\\"a\\"r")`);
+  });
+
+  test("in(): two values", () => {
+    const { field } = createBuilder();
+    expect(field("foo").in(`b"a"r`, "baz").toQuery()).toBe(`foo in ("b\\"a\\"r", "baz")`);
+  });
+
+  test("in(): three values", () => {
     const { field } = createBuilder();
     expect(field("foo").in(`b"a"r`, "baz", "qux").toQuery()).toBe(
       `foo in ("b\\"a\\"r", "baz", "qux")`

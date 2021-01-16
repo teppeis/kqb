@@ -59,14 +59,14 @@ class Operator<T = string | number> {
   /**
    * `in` operator
    */
-  in(...values: T[]) {
-    return new InCondition(this.#field, "in", values);
+  in(value: T, ...values: T[]) {
+    return new InCondition(this.#field, "in", [value, ...values]);
   }
   /**
    * not `in` operator
    */
-  notIn(...values: T[]) {
-    return new InCondition(this.#field, "not in", values);
+  notIn(value: T, ...values: T[]) {
+    return new InCondition(this.#field, "not in", [value, ...values]);
   }
 }
 
@@ -92,6 +92,9 @@ class InCondition<T> implements Condition {
   #op: "in" | "not in";
   #values: T[];
   constructor(fieldCode: string, op: "in" | "not in", values: T[]) {
+    if (values.length === 0) {
+      throw new TypeError("`values` requires at least 1 item");
+    }
     this.#field = fieldCode;
     this.#op = op;
     this.#values = values;
