@@ -109,6 +109,26 @@ function esc(str: string): string {
   return str.replace(/"/g, '\\"');
 }
 
+export const and = (condition: Condition, ...conditions: Condition[]) => {
+  return new AndOrCondition("and", condition, ...conditions);
+};
+
+export const or = (condition: Condition, ...conditions: Condition[]) => {
+  return new AndOrCondition("or", condition, ...conditions);
+};
+
+class AndOrCondition implements Condition {
+  #conditions: Condition[];
+  #op: "and" | "or";
+  constructor(op: "and" | "or", condition: Condition, ...conditions: Condition[]) {
+    this.#op = op;
+    this.#conditions = [condition, ...conditions];
+  }
+  toQuery(): string {
+    return `(${this.#conditions.map((c) => c.toQuery()).join(` ${this.#op} `)})`;
+  }
+}
+
 type OrderByDirection = "asc" | "desc";
 class Builder<FieldDefs extends FieldDefinitionsTypes> {
   #condisions: { joiner: "and" | "or"; condition: Condition }[] = [];

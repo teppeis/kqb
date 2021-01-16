@@ -1,4 +1,4 @@
-import { createBuilder } from "..";
+import { createBuilder, and, or } from "..";
 
 describe("Builder", () => {
   test("empty build()", () => {
@@ -45,6 +45,22 @@ describe("Builder", () => {
     expect(builder.where(field("foo").eq("bar")).or(field("baz").eq("qux")).build()).toBe(
       `foo = "bar" or baz = "qux"`
     );
+  });
+
+  test("where(): nested conditions", () => {
+    const { builder, field } = createBuilder();
+    expect(
+      builder
+        .where(
+          and(
+            field("a1").eq("a2"),
+            field("b1").like("b2"),
+            or(field("c1").notEq("c2"), field("d1").notLike("d2"))
+          )
+        )
+        .or(field("e1").eq("e2"))
+        .build()
+    ).toBe(`(a1 = "a2" and b1 like "b2" and (c1 != "c2" or d1 not like "d2")) or e1 = "e2"`);
   });
 });
 
@@ -131,5 +147,43 @@ describe("Condition with field definitions", () => {
       // @ts-expect-error
       field("age").notLike("foo");
     });
+  });
+});
+
+describe("and()", () => {
+  test("at least one condition", () => {
+    // @ts-expect-error
+    and();
+  });
+
+  test("one condition", () => {
+    const { field } = createBuilder();
+    expect(and(field("foo").eq("bar")).toQuery()).toBe(`(foo = "bar")`);
+  });
+
+  test("two conditions", () => {
+    const { field } = createBuilder();
+    expect(and(field("foo").eq("bar"), field("baz").like("qux")).toQuery()).toBe(
+      `(foo = "bar" and baz like "qux")`
+    );
+  });
+});
+
+describe("or()", () => {
+  test("at least one condition", () => {
+    // @ts-expect-error
+    or();
+  });
+
+  test("one condition", () => {
+    const { field } = createBuilder();
+    expect(or(field("foo").eq("bar")).toQuery()).toBe(`(foo = "bar")`);
+  });
+
+  test("two condition", () => {
+    const { field } = createBuilder();
+    expect(or(field("foo").eq("bar"), field("baz").like("qux")).toQuery()).toBe(
+      `(foo = "bar" or baz like "qux")`
+    );
   });
 });
