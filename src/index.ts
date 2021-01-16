@@ -35,30 +35,39 @@ class Operator<T = string | number> {
   /**
    * `=` operator
    */
-  eq(value: T): Condition<T> {
-    return new Condition(this.#field, "=", value);
+  eq(value: T) {
+    return new SingleCondition(this.#field, "=", value);
   }
   /**
    * `!=` operator
    */
-  notEq(value: T): Condition<T> {
-    return new Condition(this.#field, "!=", value);
+  notEq(value: T) {
+    return new SingleCondition(this.#field, "!=", value);
   }
   /**
    * `like` operator
    */
-  like(value: string): Condition<string> {
-    return new Condition(this.#field, "like", value);
+  like(value: string) {
+    return new SingleCondition(this.#field, "like", value);
   }
   /**
    * `not like` operator
    */
-  notLike(value: string): Condition<string> {
-    return new Condition(this.#field, "not like", value);
+  notLike(value: string) {
+    return new SingleCondition(this.#field, "not like", value);
+  }
+  /**
+   * `in` operator
+   */
+  in(...values: T[]) {
+    return new InCondition(this.#field, values);
   }
 }
 
-class Condition<T> {
+interface Condition {
+  toQuery(): string;
+}
+class SingleCondition<T> implements Condition {
   #field: string;
   #op: string;
   #value: T;
@@ -72,6 +81,19 @@ class Condition<T> {
   }
 }
 
+class InCondition<T> implements Condition {
+  #field: string;
+  #values: T[];
+  constructor(fieldCode: string, values: T[]) {
+    this.#field = fieldCode;
+    this.#values = values;
+  }
+  toQuery(): string {
+    const values = this.#values.map((v) => `"${esc(String(v))}"`).join(", ");
+    return `${this.#field} in (${values})`;
+  }
+}
+
 /**
  * Escape string literal in query parameters
  */
@@ -81,7 +103,7 @@ function esc(str: string): string {
 
 type OrderByDirection = "asc" | "desc";
 class Builder<FieldDefs extends FieldDefinitionsTypes> {
-  #condisions: { joiner: "and" | "or"; condition: Condition<any> }[] = [];
+  #condisions: { joiner: "and" | "or"; condition: Condition }[] = [];
   #orderByList: { field: OrderByTargetFieldNames<FieldDefs>; direction: OrderByDirection }[] = [];
   #limit: number | null = null;
   #offset: number | null = null;
@@ -110,14 +132,14 @@ class Builder<FieldDefs extends FieldDefinitionsTypes> {
     }
     return buf.join(" ");
   }
-  where(condition: Condition<any>): Builder<FieldDefs> {
+  where(condition: Condition): Builder<FieldDefs> {
     return this.and(condition);
   }
-  and(condition: Condition<any>): Builder<FieldDefs> {
+  and(condition: Condition): Builder<FieldDefs> {
     this.#condisions.push({ joiner: "and", condition });
     return this;
   }
-  or(condition: Condition<any>): Builder<FieldDefs> {
+  or(condition: Condition): Builder<FieldDefs> {
     this.#condisions.push({ joiner: "or", condition });
     return this;
   }

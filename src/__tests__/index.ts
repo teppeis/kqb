@@ -73,6 +73,11 @@ describe("Condition", () => {
     const { field } = createBuilder();
     expect(field("foo").notLike("bar").toQuery()).toBe(`foo not like "bar"`);
   });
+
+  test("in()", () => {
+    const { field } = createBuilder();
+    expect(field("foo").in("bar", "baz", "qux").toQuery()).toBe(`foo in ("bar", "baz", "qux")`);
+  });
 });
 
 describe("Condition with field definitions", () => {
