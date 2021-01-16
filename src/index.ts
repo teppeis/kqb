@@ -1,19 +1,30 @@
 export const createBuilder = <FieldDefs extends FieldDefinitionsTypes = any>() => ({
-  builder: new Builder<FieldDefs>(),
-  field: <FieldCode extends StringKeyOf<FieldDefs>>(fieldCode: FieldCode) => {
+  builder: new Builder<FieldDefs & BuiltinField>(),
+  field: <FieldCode extends StringKeyOf<FieldDefs & BuiltinField>>(fieldCode: FieldCode) => {
     return new Operator(fieldCode) as string extends StringKeyOf<FieldDefs>
       ? Operator // when FieldDefs is omitted
-      : FieldTypeOperators[FieldDefs[FieldCode]];
+      : FieldTypeOperators[(FieldDefs & BuiltinField)[FieldCode]];
   },
 });
 
 type StringKeyOf<T> = Extract<keyof T, string>;
-type FieldTypeOperators = {
-  SINGLE_LINE_TEXT: Pick<Operator<string>, "eq" | "notEq" | "like" | "notLike">;
-  NUMBER: Pick<Operator<string | number>, "eq" | "notEq">;
+
+type BuiltinField = {
+  $id: "RECORD_NUMBER";
 };
+
+type FieldTypeOperators = {
+  RECORD_NUMBER: NumericOperator;
+  SINGLE_LINE_TEXT: StringOperator;
+  MULTI_LINE_TEXT: TextOperator;
+  NUMBER: NumericOperator;
+};
+type StringOperator = Pick<Operator<string>, "eq" | "notEq" | "in" | "notIn" | "like" | "notLike">;
+type TextOperator = Pick<Operator<string>, "like" | "notLike">;
+type NumericOperator = Pick<Operator<string | number>, "eq" | "notEq" | "in" | "notIn">;
+
 type FieldDefinitionsTypes = Record<string, keyof FieldTypeOperators>;
-type SortableFieldTypes = "NUMBER";
+type SortableFieldTypes = "RECORD_NUMBER" | "SINGLE_LINE_TEXT" | "NUMBER";
 type OrderByTargetFieldNames<T> = {
   [K in keyof T]: T[K] extends SortableFieldTypes ? K : never;
 }[keyof T];

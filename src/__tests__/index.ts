@@ -71,6 +71,29 @@ describe("Builder", () => {
   });
 });
 
+describe("Builder with field definitions", () => {
+  type Defs = {
+    name: "SINGLE_LINE_TEXT";
+    message: "MULTI_LINE_TEXT";
+  };
+
+  test("orderBy(): sortable", () => {
+    const { builder } = createBuilder<Defs>();
+    expect(builder.orderBy("name", "asc").build()).toBe("order by name asc");
+  });
+
+  test("orderBy(): not sortable", () => {
+    const { builder } = createBuilder<Defs>();
+    // @ts-expect-error
+    builder.orderBy("message", "asc");
+  });
+
+  test("orderBy(): builtin $id field", () => {
+    const { builder } = createBuilder<Defs>();
+    expect(builder.orderBy("$id", "asc").build()).toBe("order by $id asc");
+  });
+});
+
 describe("Condition", () => {
   test("eq()", () => {
     const { field } = createBuilder();
@@ -134,6 +157,26 @@ describe("Condition with field definitions", () => {
     age: "NUMBER";
   };
 
+  describe("$id (builtin)", () => {
+    test("eq()", () => {
+      const { field } = createBuilder<Defs>();
+      expect(field("$id").eq("10").toQuery()).toBe(`$id = "10"`);
+    });
+
+    test("eq() accepts a number value", () => {
+      const { field } = createBuilder<Defs>();
+      expect(field("$id").eq(10).toQuery()).toBe(`$id = "10"`);
+    });
+
+    test("doesn't have like() or notLike()", () => {
+      const { field } = createBuilder<Defs>();
+      // @ts-expect-error
+      field("$id").like("foo");
+      // @ts-expect-error
+      field("$id").notLike("foo");
+    });
+  });
+
   describe("SINGLE_LINE_TEXT", () => {
     test("eq()", () => {
       const { field } = createBuilder<Defs>();
@@ -153,7 +196,7 @@ describe("Condition with field definitions", () => {
   });
 
   describe("NUMBER", () => {
-    test("eq() accepts a number value", () => {
+    test("eq()", () => {
       const { field } = createBuilder<Defs>();
       expect(field("age").eq("10").toQuery()).toBe(`age = "10"`);
     });
