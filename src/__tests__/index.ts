@@ -76,7 +76,16 @@ describe("Condition", () => {
 
   test("in()", () => {
     const { field } = createBuilder();
-    expect(field("foo").in("bar", "baz", "qux").toQuery()).toBe(`foo in ("bar", "baz", "qux")`);
+    expect(field("foo").in(`b"a"r`, "baz", "qux").toQuery()).toBe(
+      `foo in ("b\\"a\\"r", "baz", "qux")`
+    );
+  });
+
+  test("notIn()", () => {
+    const { field } = createBuilder();
+    expect(field("foo").notIn("bar", "baz", "qux").toQuery()).toBe(
+      `foo not in ("bar", "baz", "qux")`
+    );
   });
 });
 

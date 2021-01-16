@@ -60,7 +60,13 @@ class Operator<T = string | number> {
    * `in` operator
    */
   in(...values: T[]) {
-    return new InCondition(this.#field, values);
+    return new InCondition(this.#field, "in", values);
+  }
+  /**
+   * not `in` operator
+   */
+  notIn(...values: T[]) {
+    return new InCondition(this.#field, "not in", values);
   }
 }
 
@@ -83,14 +89,16 @@ class SingleCondition<T> implements Condition {
 
 class InCondition<T> implements Condition {
   #field: string;
+  #op: "in" | "not in";
   #values: T[];
-  constructor(fieldCode: string, values: T[]) {
+  constructor(fieldCode: string, op: "in" | "not in", values: T[]) {
     this.#field = fieldCode;
+    this.#op = op;
     this.#values = values;
   }
   toQuery(): string {
     const values = this.#values.map((v) => `"${esc(String(v))}"`).join(", ");
-    return `${this.#field} in (${values})`;
+    return `${this.#field} ${this.#op} (${values})`;
   }
 }
 
