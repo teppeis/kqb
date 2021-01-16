@@ -105,6 +105,26 @@ describe("Condition", () => {
     expect(field("foo").eq(`b"a"r`).toQuery()).toBe(`foo = "b\\"a\\"r"`);
   });
 
+  test("gt()", () => {
+    const { field } = createBuilder();
+    expect(field("foo").gt("10").toQuery()).toBe(`foo > "10"`);
+  });
+
+  test("lt()", () => {
+    const { field } = createBuilder();
+    expect(field("foo").lt("10").toQuery()).toBe(`foo < "10"`);
+  });
+
+  test("gtOrEq()", () => {
+    const { field } = createBuilder();
+    expect(field("foo").gtOrEq("10").toQuery()).toBe(`foo >= "10"`);
+  });
+
+  test("ltOrEq()", () => {
+    const { field } = createBuilder();
+    expect(field("foo").ltOrEq("10").toQuery()).toBe(`foo <= "10"`);
+  });
+
   test("notEq()", () => {
     const { field } = createBuilder();
     expect(field("foo").notEq("bar").toQuery()).toBe(`foo != "bar"`);
@@ -196,9 +216,10 @@ describe("Condition with field definitions", () => {
   });
 
   describe("NUMBER", () => {
-    test("eq()", () => {
+    test("has eq() and notEq()", () => {
       const { field } = createBuilder<Defs>();
       expect(field("age").eq("10").toQuery()).toBe(`age = "10"`);
+      expect(field("age").notEq("10").toQuery()).toBe(`age != "10"`);
     });
 
     test("eq() accepts a number value", () => {
@@ -206,7 +227,21 @@ describe("Condition with field definitions", () => {
       expect(field("age").eq(10).toQuery()).toBe(`age = "10"`);
     });
 
-    test("doesn't have like() or notLike()", () => {
+    test("has gt(), lt(), gtOr(), ltOr()", () => {
+      const { field } = createBuilder<Defs>();
+      expect(field("age").gt(10).toQuery()).toBe(`age > "10"`);
+      expect(field("age").lt(10).toQuery()).toBe(`age < "10"`);
+      expect(field("age").gtOrEq(10).toQuery()).toBe(`age >= "10"`);
+      expect(field("age").ltOrEq(10).toQuery()).toBe(`age <= "10"`);
+    });
+
+    test("has in() and notIn()", () => {
+      const { field } = createBuilder<Defs>();
+      expect(field("age").in(10, 20).toQuery()).toBe(`age in ("10", "20")`);
+      expect(field("age").notIn(10, 20).toQuery()).toBe(`age not in ("10", "20")`);
+    });
+
+    test("doesn't have like(), notLike()", () => {
       const { field } = createBuilder<Defs>();
       // @ts-expect-error
       field("age").like("foo");
