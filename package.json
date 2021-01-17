@@ -1,8 +1,8 @@
 {
   "name": "kqb",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Type-safe query builder for Kintone",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
@@ -13,7 +13,7 @@
   "files": [
     "dist"
   ],
-  "keywords": [],
+  "keywords": ["kintone", "query", "typescript"],
   "author": "Teppei Sato <teppeis@gmail.com>",
   "license": "MIT",
   "devDependencies": {
