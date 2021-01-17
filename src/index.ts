@@ -1,141 +1,221 @@
-export const createBuilder = <FieldDefs extends FieldDefinitionsTypes = any>() => ({
-  builder: new Builder<FieldDefs & BuiltinField>(),
-  field: <FieldCode extends StringKeyOf<FieldDefs & BuiltinField>>(fieldCode: FieldCode) => {
-    return new Operator(fieldCode) as string extends StringKeyOf<FieldDefs>
-      ? Operator // when FieldDefs is omitted
-      : FieldTypeOperators[(FieldDefs & BuiltinField)[FieldCode]];
-  },
-});
-
-type StringKeyOf<T> = Extract<keyof T, string>;
-
-type BuiltinField = {
-  $id: "RECORD_NUMBER";
+type Class<ConstructorArgs extends any[], InstanceType> = {
+  new (...args: ConstructorArgs): InstanceType;
 };
 
-type FieldTypeOperators = {
-  CALC: NumericOperator;
-  CHECK_BOX: SelectionOperator;
-  CREATED_TIME: DateTimeOperator;
-  CREATOR: SelectionOperator;
-  DATE: DateTimeOperator;
-  DATETIME: DateTimeOperator;
-  DROP_DOWN: SelectionOperator;
-  FILE: TextOperator;
-  GROUP_SELECT: SelectionOperator;
-  LINK: StringOperator;
-  MODIFIER: SelectionOperator;
-  MULTI_LINE_TEXT: TextOperator;
-  MULTI_SELECT: SelectionOperator;
-  NUMBER: NumericOperator;
-  ORGANIZATION_SELECT: SelectionOperator;
-  RADIO_BUTTON: SelectionOperator;
-  RECORD_NUMBER: NumericOperator;
-  RICH_TEXT: TextOperator;
-  SINGLE_LINE_TEXT: StringOperator;
-  STATUS: StatusOperator;
-  STATUS_ASSIGNEE: SelectionOperator;
-  TIME: DateTimeOperator;
-  UPDATED_TIME: DateTimeOperator;
-  USER_SELECT: SelectionOperator;
-};
-type StringOperator = Pick<Operator<string>, "eq" | "notEq" | "in" | "notIn" | "like" | "notLike">;
-type TextOperator = Pick<Operator<string>, "like" | "notLike">;
-type NumericOperator = Pick<
-  Operator<string | number>,
-  "eq" | "notEq" | "gt" | "lt" | "gtOrEq" | "ltOrEq" | "in" | "notIn"
->;
-type SelectionOperator = Pick<Operator<string>, "in" | "notIn">;
-type StatusOperator = Pick<Operator<string>, "eq" | "notEq" | "in" | "notIn">;
-type DateTimeOperator = Pick<Operator<string>, "eq" | "notEq" | "gt" | "lt" | "gtOrEq" | "ltOrEq">;
-
-type FieldDefinitionsTypes = Record<string, keyof FieldTypeOperators>;
-// TODO: fields in a reference field are not sortable
-type SortableFieldTypes =
-  | "RECORD_NUMBER"
-  | "MODIFIER"
-  | "CREATOR"
-  | "UPDATED_TIME"
-  | "CREATED_TIME"
-  | "SINGLE_LINE_TEXT"
-  | "NUMBER"
-  | "CALC"
-  | "DROP_DOWN"
-  | "RADIO_BUTTON"
-  | "DATE"
-  | "TIME"
-  | "DATETIME"
-  | "LINK"
-  | "STATUS";
-type OrderByTargetFieldNames<T> = {
-  [K in keyof T]: T[K] extends SortableFieldTypes ? K : never;
-}[keyof T];
-
-class Operator<T = string | number> {
+function mixin<
+  ConstructorArgs extends any[],
+  BaseInstance,
+  MixinInstance1 extends BaseInstance,
+  MixinInstance2 extends BaseInstance = BaseInstance,
+  MixinInstance3 extends BaseInstance = BaseInstance,
+  MixinInstance4 extends BaseInstance = BaseInstance
+>(
+  Base: Class<ConstructorArgs, BaseInstance>,
+  Mixin1: Class<ConstructorArgs, MixinInstance1>,
+  Mixin2?: Class<ConstructorArgs, MixinInstance2>,
+  Mixin3?: Class<ConstructorArgs, MixinInstance3>,
+  Mixin4?: Class<ConstructorArgs, MixinInstance4>
+): Class<
+  ConstructorArgs,
+  BaseInstance & MixinInstance1 & MixinInstance2 & MixinInstance3 & MixinInstance4
+> {
+  class Mixed {
+    constructor(...args: any) {
+      const base = new Base(...args);
+      const Mixins = [Mixin1, Mixin2, Mixin3, Mixin4];
+      Mixins.forEach((Mixin) => {
+        if (!Mixin) {
+          return;
+        }
+        const allProps = Object.getOwnPropertyDescriptors(Mixin.prototype);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { constructor, ...props } = allProps;
+        Object.defineProperties(base, props);
+      });
+      return base;
+    }
+  }
+  return Mixed as any;
+}
+class OperatorBase {
   #field: string;
   constructor(fieldCode: string) {
     this.#field = fieldCode;
   }
+  getField() {
+    return this.#field;
+  }
+}
+
+class EqualOperatorMixin<T> extends OperatorBase {
   /**
    * `=` operator
    */
   eq(value: T) {
-    return new SingleCondition(this.#field, "=", value);
+    return new SingleCondition(this.getField(), "=", value);
   }
   /**
    * `!=` operator
    */
   notEq(value: T) {
-    return new SingleCondition(this.#field, "!=", value);
+    return new SingleCondition(this.getField(), "!=", value);
   }
+}
+class InequalOperatorMixin<T> extends OperatorBase {
   /**
    * `>` operator
    */
   gt(value: T) {
-    return new SingleCondition(this.#field, ">", value);
+    return new SingleCondition(this.getField(), ">", value);
   }
   /**
    * `<` operator
    */
   lt(value: T) {
-    return new SingleCondition(this.#field, "<", value);
+    return new SingleCondition(this.getField(), "<", value);
   }
   /**
    * `>=` operator
    */
   gtOrEq(value: T) {
-    return new SingleCondition(this.#field, ">=", value);
+    return new SingleCondition(this.getField(), ">=", value);
   }
   /**
    * `<=` operator
    */
   ltOrEq(value: T) {
-    return new SingleCondition(this.#field, "<=", value);
+    return new SingleCondition(this.getField(), "<=", value);
   }
+}
+
+class LikeOperatorMixin extends OperatorBase {
   /**
    * `like` operator
    */
   like(value: string) {
-    return new SingleCondition(this.#field, "like", value);
+    return new SingleCondition(this.getField(), "like", value);
   }
   /**
    * `not like` operator
    */
   notLike(value: string) {
-    return new SingleCondition(this.#field, "not like", value);
+    return new SingleCondition(this.getField(), "not like", value);
   }
+}
+
+class InOperatorMixin<T> extends OperatorBase {
   /**
    * `in` operator
    */
   in(value: T, ...values: T[]) {
-    return new InCondition(this.#field, "in", [value, ...values]);
+    return new InCondition(this.getField(), "in", [value, ...values]);
   }
   /**
    * not `in` operator
    */
   notIn(value: T, ...values: T[]) {
-    return new InCondition(this.#field, "not in", [value, ...values]);
+    return new InCondition(this.getField(), "not in", [value, ...values]);
   }
+}
+
+const NumericOperator = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  EqualOperatorMixin<string | number>,
+  InequalOperatorMixin<string | number>,
+  InOperatorMixin<string | number>
+>(OperatorBase, EqualOperatorMixin, InequalOperatorMixin, InOperatorMixin);
+
+const StringOperator = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  EqualOperatorMixin<string>,
+  InOperatorMixin<string>,
+  LikeOperatorMixin
+>(OperatorBase, EqualOperatorMixin, InOperatorMixin, LikeOperatorMixin);
+
+const TextOperator = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  LikeOperatorMixin
+>(OperatorBase, LikeOperatorMixin);
+
+const SelectionOperator = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  InOperatorMixin<string>
+>(OperatorBase, InOperatorMixin);
+
+const StatusOperator = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  EqualOperatorMixin<string>,
+  InOperatorMixin<string>
+>(OperatorBase, EqualOperatorMixin, InOperatorMixin);
+
+const DateTimeOperator = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  EqualOperatorMixin<string>,
+  InequalOperatorMixin<string>
+>(OperatorBase, EqualOperatorMixin, InequalOperatorMixin);
+
+const AnyOperator = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  EqualOperatorMixin<string>,
+  InequalOperatorMixin<string>,
+  InOperatorMixin<string>,
+  LikeOperatorMixin
+>(OperatorBase, EqualOperatorMixin, InequalOperatorMixin, InOperatorMixin, LikeOperatorMixin);
+type AnyOperator = InstanceType<typeof AnyOperator>;
+
+const FieldTypeOperators = {
+  CALC: NumericOperator,
+  CHECK_BOX: SelectionOperator,
+  CREATED_TIME: DateTimeOperator,
+  CREATOR: SelectionOperator,
+  DATE: DateTimeOperator,
+  DATETIME: DateTimeOperator,
+  DROP_DOWN: SelectionOperator,
+  FILE: TextOperator,
+  GROUP_SELECT: SelectionOperator,
+  LINK: StringOperator,
+  MODIFIER: SelectionOperator,
+  MULTI_LINE_TEXT: TextOperator,
+  MULTI_SELECT: SelectionOperator,
+  NUMBER: NumericOperator,
+  ORGANIZATION_SELECT: SelectionOperator,
+  RADIO_BUTTON: SelectionOperator,
+  RECORD_NUMBER: NumericOperator,
+  RICH_TEXT: TextOperator,
+  SINGLE_LINE_TEXT: StringOperator,
+  STATUS: StatusOperator,
+  STATUS_ASSIGNEE: SelectionOperator,
+  TIME: DateTimeOperator,
+  UPDATED_TIME: DateTimeOperator,
+  USER_SELECT: SelectionOperator,
+};
+type FieldTypeOperators = {
+  [K in keyof typeof FieldTypeOperators]: InstanceType<typeof FieldTypeOperators[K]>;
+};
+
+const BuiltinField = { $id: "RECORD_NUMBER" } as const;
+type StringKeyOf<T> = Extract<keyof T, string>;
+type FieldDefinitionsTypes = Record<string, keyof FieldTypeOperators>;
+
+export function createBuilder<FieldDefs extends FieldDefinitionsTypes = any>(fd?: FieldDefs) {
+  type MergedDefs = FieldDefs & typeof BuiltinField;
+  return {
+    builder: new Builder<MergedDefs>(),
+    field: <FieldCode extends StringKeyOf<MergedDefs>>(fieldCode: FieldCode) => {
+      return (fd
+        ? new FieldTypeOperators[{ ...fd, ...BuiltinField }[fieldCode]](fieldCode)
+        : new AnyOperator(fieldCode)) as string extends StringKeyOf<FieldDefs>
+        ? AnyOperator
+        : FieldTypeOperators[MergedDefs[FieldCode]];
+    },
+  };
 }
 
 interface Condition {
@@ -201,6 +281,26 @@ function esc(str: string): string {
   return str.replace(/"/g, '\\"');
 }
 
+// TODO: fields in a reference field are not sortable
+type SortableFieldTypes =
+  | "RECORD_NUMBER"
+  | "MODIFIER"
+  | "CREATOR"
+  | "UPDATED_TIME"
+  | "CREATED_TIME"
+  | "SINGLE_LINE_TEXT"
+  | "NUMBER"
+  | "CALC"
+  | "DROP_DOWN"
+  | "RADIO_BUTTON"
+  | "DATE"
+  | "TIME"
+  | "DATETIME"
+  | "LINK"
+  | "STATUS";
+type OrderByTargetFieldNames<T> = {
+  [K in keyof T]: T[K] extends SortableFieldTypes ? K : never;
+}[keyof T];
 type OrderByDirection = "asc" | "desc";
 type OrderByTargetPair<FieldDefs> = [
   field: OrderByTargetFieldNames<FieldDefs>,

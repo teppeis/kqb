@@ -72,24 +72,24 @@ describe("Builder", () => {
 });
 
 describe("Builder with field definitions", () => {
-  type Defs = {
-    name: "SINGLE_LINE_TEXT";
-    message: "MULTI_LINE_TEXT";
-  };
+  const defs = {
+    name: "SINGLE_LINE_TEXT",
+    message: "MULTI_LINE_TEXT",
+  } as const;
 
   test("orderBy(): sortable", () => {
-    const { builder } = createBuilder<Defs>();
+    const { builder } = createBuilder(defs);
     expect(builder.orderBy("name", "asc").build()).toBe("order by name asc");
   });
 
   test("orderBy(): not sortable", () => {
-    const { builder } = createBuilder<Defs>();
+    const { builder } = createBuilder(defs);
     // @ts-expect-error
     builder.orderBy("message", "asc");
   });
 
   test("orderBy(): builtin $id field", () => {
-    const { builder } = createBuilder<Defs>();
+    const { builder } = createBuilder(defs);
     expect(builder.orderBy("$id", "asc").build()).toBe("order by $id asc");
   });
 });
@@ -172,63 +172,67 @@ describe("Condition", () => {
 });
 
 describe("Condition with field definitions", () => {
-  type Defs = {
-    name: "SINGLE_LINE_TEXT";
-    age: "NUMBER";
-  };
+  const defs = {
+    name: "SINGLE_LINE_TEXT",
+    age: "NUMBER",
+  } as const;
 
   describe("$id (builtin)", () => {
     test("eq()", () => {
-      const { field } = createBuilder<Defs>();
+      const { field } = createBuilder(defs);
       expect(field("$id").eq("10").toQuery()).toBe(`$id = "10"`);
     });
 
     test("eq() accepts a number value", () => {
-      const { field } = createBuilder<Defs>();
+      const { field } = createBuilder(defs);
       expect(field("$id").eq(10).toQuery()).toBe(`$id = "10"`);
     });
 
     test("doesn't have like() or notLike()", () => {
-      const { field } = createBuilder<Defs>();
-      // @ts-expect-error
-      field("$id").like("foo");
-      // @ts-expect-error
-      field("$id").notLike("foo");
+      const { field } = createBuilder(defs);
+      expect(() => {
+        // @ts-expect-error
+        field("$id").like("foo");
+      }).toThrow();
+      expect(() => {
+        // @ts-expect-error
+        field("$id").notLike("foo");
+      }).toThrow();
     });
   });
 
   describe("SINGLE_LINE_TEXT", () => {
     test("eq()", () => {
-      const { field } = createBuilder<Defs>();
+      const { field } = createBuilder(defs);
       expect(field("name").eq("foo").toQuery()).toBe(`name = "foo"`);
     });
 
     test("eq(): cannnot accepts a number value", () => {
-      const { field } = createBuilder<Defs>();
+      const { field } = createBuilder(defs);
       // @ts-expect-error
       field("name").eq(10);
     });
 
     test("like()", () => {
-      const { field } = createBuilder<Defs>();
+      const { field } = createBuilder(defs);
       expect(field("name").like("foo").toQuery()).toBe(`name like "foo"`);
     });
   });
 
   describe("NUMBER", () => {
     test("has eq() and notEq()", () => {
-      const { field } = createBuilder<Defs>();
+      const { field } = createBuilder(defs);
       expect(field("age").eq("10").toQuery()).toBe(`age = "10"`);
       expect(field("age").notEq("10").toQuery()).toBe(`age != "10"`);
     });
 
     test("eq() accepts a number value", () => {
-      const { field } = createBuilder<Defs>();
+      const { field } = createBuilder(defs);
       expect(field("age").eq(10).toQuery()).toBe(`age = "10"`);
     });
 
     test("has gt(), lt(), gtOr(), ltOr()", () => {
-      const { field } = createBuilder<Defs>();
+      const { field } = createBuilder(defs);
       expect(field("age").gt(10).toQuery()).toBe(`age > "10"`);
       expect(field("age").lt(10).toQuery()).toBe(`age < "10"`);
       expect(field("age").gtOrEq(10).toQuery()).toBe(`age >= "10"`);
@@ -236,17 +240,21 @@ describe("Condition with field definitions", () => {
     });
 
     test("has in() and notIn()", () => {
-      const { field } = createBuilder<Defs>();
+      const { field } = createBuilder(defs);
       expect(field("age").in(10, 20).toQuery()).toBe(`age in ("10", "20")`);
       expect(field("age").notIn(10, 20).toQuery()).toBe(`age not in ("10", "20")`);
     });
 
     test("doesn't have like(), notLike()", () => {
-      const { field } = createBuilder<Defs>();
-      // @ts-expect-error
-      field("age").like("foo");
-      // @ts-expect-error
-      field("age").notLike("foo");
+      const { field } = createBuilder(defs);
+      expect(() => {
+        // @ts-expect-error
+        field("age").like("foo");
+      }).toThrow();
+      expect(() => {
+        // @ts-expect-error
+        field("age").notLike("foo");
+      }).toThrow();
     });
   });
 });
