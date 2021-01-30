@@ -175,6 +175,12 @@ describe("Condition with field definitions", () => {
   const defs = {
     name: "SINGLE_LINE_TEXT",
     age: "NUMBER",
+    subtable1: {
+      $type: "SUBTABLE",
+      $fields: {
+        created: "DATETIME",
+      },
+    },
   } as const;
 
   describe("$id (builtin)", () => {
@@ -231,7 +237,7 @@ describe("Condition with field definitions", () => {
       expect(field("age").eq(10).toQuery()).toBe(`age = "10"`);
     });
 
-    test("has gt(), lt(), gtOr(), ltOr()", () => {
+    test("has gt(), lt(), gtOr() and ltOr()", () => {
       const { field } = createBuilder(defs);
       expect(field("age").gt(10).toQuery()).toBe(`age > "10"`);
       expect(field("age").lt(10).toQuery()).toBe(`age < "10"`);
@@ -245,7 +251,7 @@ describe("Condition with field definitions", () => {
       expect(field("age").notIn(10, 20).toQuery()).toBe(`age not in ("10", "20")`);
     });
 
-    test("doesn't have like(), notLike()", () => {
+    test("doesn't have like() and notLike()", () => {
       const { field } = createBuilder(defs);
       expect(() => {
         // @ts-expect-error
@@ -254,6 +260,45 @@ describe("Condition with field definitions", () => {
       expect(() => {
         // @ts-expect-error
         field("age").notLike("foo");
+      }).toThrow();
+    });
+  });
+
+  describe("subtable1 in subtables", () => {});
+  test("cannot use field code of subtable", () => {
+    const { field } = createBuilder(defs);
+    expect(() => {
+      // @ts-expect-error
+      field("subtable1");
+    }).toThrow();
+  });
+
+  describe("DATETIME in subtables", () => {
+    test("has in() and notIn()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("created").in("2020-01-01", "2020-01-02").toQuery()).toBe(
+        `created in ("2020-01-01", "2020-01-02")`
+      );
+      expect(field("created").notIn("2020-01-01", "2020-01-02").toQuery()).toBe(
+        `created not in ("2020-01-01", "2020-01-02")`
+      );
+    });
+    test("has gt(), lt(), gtOr() and ltOr()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("created").gt("2020-01-01").toQuery()).toBe(`created > "2020-01-01"`);
+      expect(field("created").lt("2020-01-01").toQuery()).toBe(`created < "2020-01-01"`);
+      expect(field("created").gtOrEq("2020-01-01").toQuery()).toBe(`created >= "2020-01-01"`);
+      expect(field("created").ltOrEq("2020-01-01").toQuery()).toBe(`created <= "2020-01-01"`);
+    });
+    test("doesn't have eq(), notEq()", () => {
+      const { field } = createBuilder(defs);
+      expect(() => {
+        // @ts-expect-error
+        field("created").eq("2020-01-01");
+      }).toThrow();
+      expect(() => {
+        // @ts-expect-error
+        field("created").notEq("2020-01-01");
       }).toThrow();
     });
   });

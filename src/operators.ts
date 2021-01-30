@@ -130,6 +130,15 @@ const NumericOperator = mixin<
   InOperatorMixin<string | number>
 >(OperatorBase, EqualOperatorMixin, InequalOperatorMixin, InOperatorMixin);
 
+const NumericOperatorForTable = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  InequalOperatorMixin<string | number>,
+  InOperatorMixin<string | number>
+>(OperatorBase, InequalOperatorMixin, InOperatorMixin);
+
+const NumericOperators = [NumericOperator, NumericOperatorForTable] as const;
+
 const StringOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
   OperatorBase,
@@ -138,17 +147,29 @@ const StringOperator = mixin<
   LikeOperatorMixin
 >(OperatorBase, EqualOperatorMixin, InOperatorMixin, LikeOperatorMixin);
 
+const StringOperatorForTable = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  InOperatorMixin<string>,
+  LikeOperatorMixin
+>(OperatorBase, InOperatorMixin, LikeOperatorMixin);
+
+const StringOperators = [StringOperator, StringOperatorForTable] as const;
+
 const TextOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
   OperatorBase,
   LikeOperatorMixin
 >(OperatorBase, LikeOperatorMixin);
 
+const TextOperators = [TextOperator, TextOperator] as const;
+
 const SelectionOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
   OperatorBase,
   InOperatorMixin<string>
 >(OperatorBase, InOperatorMixin);
+const SelectionOperators = [SelectionOperator, SelectionOperator] as const;
 
 const StatusOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
@@ -157,12 +178,30 @@ const StatusOperator = mixin<
   InOperatorMixin<string>
 >(OperatorBase, EqualOperatorMixin, InOperatorMixin);
 
+// NOTE: not in use
+const StatusOperatorForTable = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  InOperatorMixin<string>
+>(OperatorBase, InOperatorMixin);
+
+const StatusOperators = [StatusOperator, StatusOperatorForTable] as const;
+
 const DateTimeOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
   OperatorBase,
   EqualOperatorMixin<string>,
   InequalOperatorMixin<string>
 >(OperatorBase, EqualOperatorMixin, InequalOperatorMixin);
+
+const DateTimeOperatorForDate = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  InOperatorMixin<string>,
+  InequalOperatorMixin<string>
+>(OperatorBase, InOperatorMixin, InequalOperatorMixin);
+
+const DateTimeOperators = [DateTimeOperator, DateTimeOperatorForDate] as const;
 
 export const AnyOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
@@ -175,31 +214,35 @@ export const AnyOperator = mixin<
 export type AnyOperator = InstanceType<typeof AnyOperator>;
 
 export const FieldTypeOperators = {
-  CALC: NumericOperator,
-  CHECK_BOX: SelectionOperator,
-  CREATED_TIME: DateTimeOperator,
-  CREATOR: SelectionOperator,
-  DATE: DateTimeOperator,
-  DATETIME: DateTimeOperator,
-  DROP_DOWN: SelectionOperator,
-  FILE: TextOperator,
-  GROUP_SELECT: SelectionOperator,
-  LINK: StringOperator,
-  MODIFIER: SelectionOperator,
-  MULTI_LINE_TEXT: TextOperator,
-  MULTI_SELECT: SelectionOperator,
-  NUMBER: NumericOperator,
-  ORGANIZATION_SELECT: SelectionOperator,
-  RADIO_BUTTON: SelectionOperator,
-  RECORD_NUMBER: NumericOperator,
-  RICH_TEXT: TextOperator,
-  SINGLE_LINE_TEXT: StringOperator,
-  STATUS: StatusOperator,
-  STATUS_ASSIGNEE: SelectionOperator,
-  TIME: DateTimeOperator,
-  UPDATED_TIME: DateTimeOperator,
-  USER_SELECT: SelectionOperator,
-};
+  CALC: NumericOperators,
+  CHECK_BOX: SelectionOperators,
+  CREATED_TIME: DateTimeOperators,
+  CREATOR: SelectionOperators,
+  DATE: DateTimeOperators,
+  DATETIME: DateTimeOperators,
+  DROP_DOWN: SelectionOperators,
+  FILE: TextOperators,
+  GROUP_SELECT: SelectionOperators,
+  LINK: StringOperators,
+  MODIFIER: SelectionOperators,
+  MULTI_LINE_TEXT: TextOperators,
+  MULTI_SELECT: SelectionOperators,
+  NUMBER: NumericOperators,
+  ORGANIZATION_SELECT: SelectionOperators,
+  RADIO_BUTTON: SelectionOperators,
+  RECORD_NUMBER: NumericOperators,
+  RICH_TEXT: TextOperators,
+  SINGLE_LINE_TEXT: StringOperators,
+  STATUS: StatusOperators,
+  STATUS_ASSIGNEE: SelectionOperators,
+  TIME: DateTimeOperators,
+  UPDATED_TIME: DateTimeOperators,
+  USER_SELECT: SelectionOperators,
+} as const;
+
 export type FieldTypeOperators = {
-  [K in keyof typeof FieldTypeOperators]: InstanceType<typeof FieldTypeOperators[K]>;
+  [K in keyof typeof FieldTypeOperators]: [
+    InstanceType<typeof FieldTypeOperators[K][0]>,
+    InstanceType<typeof FieldTypeOperators[K][1]>
+  ];
 };

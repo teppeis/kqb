@@ -1,7 +1,9 @@
 import type { Condition } from "./conditions";
 import type { FieldTypeOperators } from "./operators";
 
-export type FieldDefinitionsTypes = Record<string, keyof FieldTypeOperators>;
+export type FieldTypes = keyof FieldTypeOperators;
+export type Subtable = { $type: "SUBTABLE"; $fields: Record<string, FieldTypes> };
+export type FieldDefinitionsTypes = Record<string, FieldTypes | Subtable>;
 
 // TODO: fields in a reference field are not sortable
 type SortableFieldTypes =
