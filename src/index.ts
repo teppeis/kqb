@@ -1,35 +1,61 @@
-import type { UnionToIntersection, ValuesType } from "utility-types";
-import type { FieldDefinitionsTypes, FieldTypes, Subtable } from "./builder";
+import type { FieldDefinitionsTypes, FieldTypes, ReferenceTable, Subtable } from "./builder";
 import { Builder } from "./builder";
-import type { KeysByValue, StringKeyOf } from "./type-utils";
 import { AnyOperator, FieldTypeOperators } from "./operators";
+import type { KeysByValue, StringKeyOf } from "./type-utils";
 
 export { and, or } from "./conditions";
 
 const BuiltinField = { $id: "RECORD_NUMBER" } as const;
 type WithBuiltin<T> = T & typeof BuiltinField;
-type NormalFieldCodes<P extends FieldDefinitionsTypes> = Extract<
-  KeysByValue<P, FieldTypes>,
+type NormalFieldCodes<T extends FieldDefinitionsTypes> = Extract<
+  KeysByValue<T, FieldTypes>,
   string
 >;
-type SubtableFieldCodes<P extends FieldDefinitionsTypes> = {
-  [K in keyof P]: P[K] extends Subtable ? StringKeyOf<P[K]["$fields"]> : never;
-}[keyof P];
+type SubtableFieldCodes<T extends FieldDefinitionsTypes> = {
+  [K in keyof T]: T[K] extends Subtable ? StringKeyOf<T[K]["$fields"]> : never;
+}[keyof T];
+type ConcatTableDotFieldCode<
+  T extends FieldDefinitionsTypes,
+  TableType extends Subtable | ReferenceTable
+> = {
+  [K in StringKeyOf<T>]: T[K] extends TableType ? `${K}.${StringKeyOf<T[K]["$fields"]>}` : never;
+}[StringKeyOf<T>];
+type RefTableFieldCodes<T extends FieldDefinitionsTypes> = ConcatTableDotFieldCode<
+  T,
+  ReferenceTable
+>;
 type FlattenFieldCodes<T extends FieldDefinitionsTypes> =
   | NormalFieldCodes<T>
-  | SubtableFieldCodes<T>;
+  | SubtableFieldCodes<T>
+  | RefTableFieldCodes<T>;
 
-type NormalFields<P extends FieldDefinitionsTypes> = {
-  [K in keyof P]: P[K] extends FieldTypes ? P[K] : never;
+type NormalFields<T extends FieldDefinitionsTypes> = {
+  [K in keyof T]: T[K] extends FieldTypes ? T[K] : never;
 };
-type FlattenSubtables<T extends FieldDefinitionsTypes> = UnionToIntersection<
-  ValuesType<
-    {
-      [K in keyof T]: T[K] extends Subtable ? T[K]["$fields"] : never;
-    }
-  >
->;
-type FlattenFields<P extends FieldDefinitionsTypes> = NormalFields<P> & FlattenSubtables<P>;
+type FlattenRefTables<T extends FieldDefinitionsTypes> = {
+  [K in RefTableFieldCodes<T>]: FlattenTableField<T, ReferenceTable, K>;
+};
+type FlattenSubtables<T extends FieldDefinitionsTypes> = {
+  [K in ConcatTableDotFieldCode<T, Subtable> as K extends `${string}.${infer FieldCode}`
+    ? FieldCode
+    : never]: FlattenTableField<T, Subtable, K>;
+};
+type FlattenTableField<
+  T extends FieldDefinitionsTypes,
+  TableType extends Subtable | ReferenceTable,
+  K extends ConcatTableDotFieldCode<T, TableType>
+> = K extends `${infer TableCode}.${infer FieldCode}`
+  ? TableCode extends keyof T
+    ? T[TableCode] extends TableType
+      ? FieldCode extends keyof Extract<T[TableCode], TableType>["$fields"]
+        ? Extract<T[TableCode], TableType>["$fields"][FieldCode]
+        : never
+      : never
+    : never
+  : never;
+type FlattenFields<T extends FieldDefinitionsTypes> = NormalFields<T> &
+  FlattenSubtables<T> &
+  FlattenRefTables<T>;
 
 export function createBuilder(): {
   builder: Builder<any>;
@@ -41,43 +67,74 @@ export function createBuilder<FieldDefs extends FieldDefinitionsTypes>(
   builder: Builder<WithBuiltin<FlattenFields<FieldDefs>>>;
   field: <FieldCode extends FlattenFieldCodes<WithBuiltin<FieldDefs>>>(
     fieldCode: FieldCode
-  ) => WithBuiltin<FieldDefs>[FieldCode] extends string
-    ? FieldTypeOperators[WithBuiltin<FlattenFields<FieldDefs>>[FieldCode]] extends Array<any>
-      ? FieldTypeOperators[WithBuiltin<FlattenFields<FieldDefs>>[FieldCode]][0]
-      : never
-    : FieldTypeOperators[WithBuiltin<FlattenFields<FieldDefs>>[FieldCode]] extends Array<any>
-    ? FieldTypeOperators[WithBuiltin<FlattenFields<FieldDefs>>[FieldCode]][1]
+  ) => WithBuiltin<FieldDefs>[FieldCode] extends FieldTypes
+    ? Extract<FieldTypeOperators[WithBuiltin<FieldDefs>[FieldCode]], [any, any]>[0]
+    : FieldCode extends keyof FlattenSubtables<FieldDefs>
+    ? Extract<FieldTypeOperators[FlattenSubtables<FieldDefs>[FieldCode]], [any, any]>[1]
+    : FieldCode extends keyof FlattenRefTables<FieldDefs>
+    ? FieldTypeOperators[FlattenRefTables<FieldDefs>[FieldCode]][1]
     : never;
 };
 export function createBuilder<FieldDefs extends FieldDefinitionsTypes = any>(fd?: FieldDefs) {
   return {
     builder: new Builder<WithBuiltin<FlattenFields<FieldDefs>>>(),
     field: <FieldCode extends FlattenFieldCodes<WithBuiltin<FieldDefs>>>(fieldCode: FieldCode) => {
-      if (fd) {
-        const effectiveDefs = { ...fd, ...BuiltinField };
-        const index = typeof effectiveDefs[fieldCode] === "string" ? 0 : 1;
-        return new FieldTypeOperators[flattenFieldDefs(effectiveDefs)[fieldCode]][index](fieldCode);
-      } else {
+      if (!fd) {
         return new AnyOperator(fieldCode);
       }
+      const fieldType = { ...fd, ...BuiltinField }[fieldCode];
+      if (isFieldType(fieldType)) {
+        return new FieldTypeOperators[toFieldType(fieldType)][0](fieldCode);
+      }
+      const subtableFieldType = findSubtableField(fd, fieldCode);
+      if (subtableFieldType) {
+        return new FieldTypeOperators[subtableFieldType][1](fieldCode);
+      }
+      const refTableFieldType = findRefTableField(fd, fieldCode);
+      if (refTableFieldType) {
+        return new FieldTypeOperators[refTableFieldType][1](fieldCode);
+      }
+      throw new TypeError(`Unexpected field code: ${fieldCode}`);
     },
   };
 }
 
-function flattenFieldDefs<FieldDefs extends FieldDefinitionsTypes>(
-  fd: FieldDefs
-): Record<keyof FlattenFields<FieldDefs>, keyof FieldTypeOperators> {
-  const result: Record<string, keyof FieldTypeOperators> = {};
-  for (const [key, value] of Object.entries(fd)) {
-    if (typeof value === "string") {
-      result[key] = value;
-    } else if (typeof value === "object" && value.$type === "SUBTABLE") {
-      for (const [code, fieldType] of Object.entries(value.$fields)) {
-        result[code] = fieldType;
+function isFieldType(fieldType: any): fieldType is FieldTypes {
+  return fieldType in FieldTypeOperators;
+}
+
+function toFieldType<T extends FieldTypes>(fieldType: T): FieldTypes {
+  return fieldType;
+}
+
+function findSubtableField<FieldDefs extends FieldDefinitionsTypes>(
+  fd: FieldDefs,
+  fieldCode: string
+): FieldTypes | null {
+  for (const [, props] of Object.entries(fd)) {
+    if (typeof props === "object" && props.$type === "SUBTABLE") {
+      for (const [code, fieldType] of Object.entries(props.$fields)) {
+        if (code === fieldCode) {
+          return fieldType;
+        }
       }
-    } else {
-      throw new TypeError(`Unexpected state`);
     }
   }
-  return result as Record<keyof FlattenFields<FieldDefs>, keyof FieldTypeOperators>;
+  return null;
+}
+
+function findRefTableField<FieldDefs extends FieldDefinitionsTypes>(
+  fd: FieldDefs,
+  fieldCode: string
+): FieldTypes | null {
+  for (const [tableCode, props] of Object.entries(fd)) {
+    if (typeof props === "object" && props.$type === "REFERENCE_TABLE") {
+      for (const [code, fieldType] of Object.entries(props.$fields)) {
+        if (`${tableCode}.${code}` === fieldCode) {
+          return fieldType;
+        }
+      }
+    }
+  }
+  return null;
 }

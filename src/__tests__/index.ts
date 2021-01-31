@@ -181,6 +181,12 @@ describe("Condition with field definitions", () => {
         created: "DATETIME",
       },
     },
+    reftable1: {
+      $type: "REFERENCE_TABLE",
+      $fields: {
+        count: "NUMBER",
+      },
+    },
   } as const;
 
   describe("$id (builtin)", () => {
@@ -299,6 +305,45 @@ describe("Condition with field definitions", () => {
       expect(() => {
         // @ts-expect-error
         field("created").notEq("2020-01-01");
+      }).toThrow();
+    });
+  });
+
+  describe("reftable1 in reference tables", () => {});
+  test("cannot use field code of reference tables", () => {
+    const { field } = createBuilder(defs);
+    expect(() => {
+      // @ts-expect-error
+      field("reftable1");
+    }).toThrow();
+  });
+
+  describe("NUMBER in reference tables", () => {
+    test("has gt(), lt(), gtOr() and ltOr()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("reftable1.count").gt(10).toQuery()).toBe(`reftable1.count > "10"`);
+      expect(field("reftable1.count").lt(10).toQuery()).toBe(`reftable1.count < "10"`);
+      expect(field("reftable1.count").gtOrEq(10).toQuery()).toBe(`reftable1.count >= "10"`);
+      expect(field("reftable1.count").ltOrEq(10).toQuery()).toBe(`reftable1.count <= "10"`);
+    });
+
+    test("has in() and notIn()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("reftable1.count").in(10, 20).toQuery()).toBe(`reftable1.count in ("10", "20")`);
+      expect(field("reftable1.count").notIn(10, 20).toQuery()).toBe(
+        `reftable1.count not in ("10", "20")`
+      );
+    });
+
+    test("doesn't have eq() and notEq()", () => {
+      const { field } = createBuilder(defs);
+      expect(() => {
+        // @ts-expect-error
+        field("reftable1.count").eq("foo");
+      }).toThrow();
+      expect(() => {
+        // @ts-expect-error
+        field("reftable1.count").notEq("foo");
       }).toThrow();
     });
   });

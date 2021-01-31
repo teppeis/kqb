@@ -3,7 +3,8 @@ import type { FieldTypeOperators } from "./operators";
 
 export type FieldTypes = keyof FieldTypeOperators;
 export type Subtable = { $type: "SUBTABLE"; $fields: Record<string, FieldTypes> };
-export type FieldDefinitionsTypes = Record<string, FieldTypes | Subtable>;
+export type ReferenceTable = { $type: "REFERENCE_TABLE"; $fields: Record<string, FieldTypes> };
+export type FieldDefinitionsTypes = Record<string, FieldTypes | Subtable | ReferenceTable>;
 
 // TODO: fields in a reference field are not sortable
 type SortableFieldTypes =
