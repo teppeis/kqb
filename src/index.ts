@@ -64,7 +64,7 @@ export function createBuilder(): {
 export function createBuilder<FieldDefs extends FieldDefinitionsTypes>(
   fd: FieldDefs
 ): {
-  builder: Builder<WithBuiltin<FlattenFields<FieldDefs>>>;
+  builder: Builder<WithBuiltin<FieldDefs>>;
   field: <FieldCode extends FlattenFieldCodes<WithBuiltin<FieldDefs>>>(
     fieldCode: FieldCode
   ) => WithBuiltin<FieldDefs>[FieldCode] extends FieldTypes
