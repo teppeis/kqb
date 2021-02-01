@@ -2,6 +2,14 @@
 
 Type-safe query builder for [Kintone](https://www.kintone.com).
 
+[![npm version][npm-image]][npm-url]
+![supported Node.js version][node-version]
+![supported TypeScript version][ts-version]
+[![ci status][ci-image]][ci-url]
+![dependency status][deps-count-image]
+![license][license]
+
+
 ## Design goal
 
 - Type-safe for your app schema
@@ -54,4 +62,17 @@ const query: string = builder
 
 ## License
 
-MIT license
+
+MIT License: Teppei Sato &lt;teppeis@gmail.com&gt;
+
+[npm-image]: https://badgen.net/npm/v/kqb?icon=npm&label=
+[npm-url]: https://npmjs.org/package/kqb
+[npm-downloads-image]: https://badgen.net/npm/dm/kqb
+[deps-image]: https://badgen.net/david/dep/teppeis/kqb.svg
+[deps-url]: https://david-dm.org/teppeis/kqb
+[deps-count-image]: https://badgen.net/bundlephobia/dependency-count/kqb
+[node-version]: https://badgen.net/npm/node/kqb
+[ts-version]: https://badgen.net/badge/typescript/%3E=3.8?icon=typescript
+[license]: https://badgen.net/npm/license/kqb
+[ci-image]: https://github.com/teppeis/kqb/workflows/ci/badge.svg
+[ci-url]: https://github.com/teppeis/kqb/actions?query=workflow%3Aci
