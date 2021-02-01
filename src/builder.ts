@@ -6,7 +6,6 @@ export type Subtable = { $type: "SUBTABLE"; $fields: Record<string, FieldTypes> 
 export type ReferenceTable = { $type: "REFERENCE_TABLE"; $fields: Record<string, FieldTypes> };
 export type FieldDefinitionsTypes = Record<string, FieldTypes | Subtable | ReferenceTable>;
 
-// TODO: fields in a reference field are not sortable
 type SortableFieldTypes =
   | "RECORD_NUMBER"
   | "MODIFIER"
@@ -34,7 +33,7 @@ type OrderByTargetPair<FieldDefs> = [
 
 export class Builder<FieldDefs extends FieldDefinitionsTypes> {
   #condisions: { joiner: "and" | "or"; condition: Condition }[] = [];
-  #orderByList: { field: OrderByTargetFieldNames<FieldDefs>; direction: OrderByDirection }[] = [];
+  #orderByList: OrderByTargetPair<FieldDefs>[] = [];
   #limit: number | null = null;
   #offset: number | null = null;
 
@@ -52,7 +51,7 @@ export class Builder<FieldDefs extends FieldDefinitionsTypes> {
     }
     if (this.#orderByList.length > 0) {
       buf.push("order by");
-      buf.push(this.#orderByList.map(({ field, direction }) => `${field} ${direction}`).join(", "));
+      buf.push(this.#orderByList.map(([field, direction]) => `${field} ${direction}`).join(", "));
     }
     if (this.#limit != null) {
       buf.push(`limit ${this.#limit}`);
@@ -94,7 +93,7 @@ export class Builder<FieldDefs extends FieldDefinitionsTypes> {
         pairs = [[mayBeField, mayBeDirection]];
       }
     }
-    this.#orderByList.push(...pairs.map(([field, direction]) => ({ field, direction })));
+    this.#orderByList.push(...pairs);
     return this;
   }
   limit(numberOfRows: number): Builder<FieldDefs> {

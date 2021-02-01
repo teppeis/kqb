@@ -74,18 +74,43 @@ describe("Builder", () => {
 describe("Builder with field definitions", () => {
   const defs = {
     name: "SINGLE_LINE_TEXT",
+    age: "NUMBER",
     message: "MULTI_LINE_TEXT",
+    subtable1: {
+      $type: "SUBTABLE",
+      $fields: {
+        created: "DATETIME",
+      },
+    },
+    reftable1: {
+      $type: "REFERENCE_TABLE",
+      $fields: {
+        count: "NUMBER",
+      },
+    },
   } as const;
 
-  test("orderBy(): sortable", () => {
+  test("orderBy(): sortable fields", () => {
     const { builder } = createBuilder(defs);
     expect(builder.orderBy("name", "asc").build()).toBe("order by name asc");
   });
 
-  test("orderBy(): not sortable", () => {
+  test("orderBy(): not sortable filds", () => {
     const { builder } = createBuilder(defs);
     // @ts-expect-error
     builder.orderBy("message", "asc");
+  });
+
+  test("orderBy(): fields in subtables are not sortable", () => {
+    const { builder } = createBuilder(defs);
+    // @ts-expect-error
+    builder.orderBy("created", "asc");
+  });
+
+  test("orderBy(): fields in reference tables are not sortable", () => {
+    const { builder } = createBuilder(defs);
+    // @ts-expect-error
+    builder.orderBy("reftable1.count", "asc");
   });
 
   test("orderBy(): builtin $id field", () => {
