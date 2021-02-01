@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Type-safe query builder for Kintone",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=10.17"
+  },
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
