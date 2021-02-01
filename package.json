@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist *.tsbuildinfo",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
     "test": "run-s lint unit clean build",
