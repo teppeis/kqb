@@ -19,6 +19,6 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/.npm
-          key: npm-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
-      - run: npm install
+          key: npm-${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+      - run: npm ci
       - run: npm test
