@@ -6,7 +6,7 @@ Type-safe query builder for [Kintone](https://www.kintone.com).
 ![supported Node.js version][node-version]
 ![supported TypeScript version][ts-version]
 [![ci status][ci-image]][ci-url]
-![dependency status][deps-count-image]
+![dependency count][deps-count-image]
 ![license][license]
 
 
