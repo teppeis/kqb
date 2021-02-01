@@ -1,6 +1,6 @@
 {
   "name": "kqb",
-  "version": "0.0.0",
+  "version": "1.0.0-0",
   "description": "Type-safe query builder for Kintone",
   "main": "dist/index.js",
   "engines": {
