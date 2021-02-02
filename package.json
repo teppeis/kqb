@@ -9,10 +9,12 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist *.tsbuildinfo",
+    "clean-test-files": "rimraf dist/**/__tests__",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
-    "prepack": "rimraf dist/**/__tests__",
-    "test": "run-s lint unit clean build",
+    "prepack": "run-s clean build clean-test-files",
+    "test": "run-p --aggregate-output lint typecheck unit",
+    "typecheck": "tsc --noEmit",
     "unit": "jest"
   },
   "files": [
