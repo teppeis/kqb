@@ -1,11 +1,15 @@
 {
   "name": "kqb",
-  "version": "1.0.0",
   "description": "Type-safe query builder for Kintone",
-  "main": "dist/index.js",
+  "version": "1.0.0",
+  "author": "Teppei Sato <teppeis@gmail.com>",
   "engines": {
     "node": ">=10.17"
   },
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist *.tsbuildinfo",
@@ -17,16 +21,6 @@
     "typecheck": "tsc --noEmit",
     "unit": "jest"
   },
-  "files": [
-    "dist"
-  ],
-  "keywords": [
-    "kintone",
-    "query",
-    "typescript"
-  ],
-  "author": "Teppei Sato <teppeis@gmail.com>",
-  "license": "MIT",
   "devDependencies": {
     "eslint": "^7.17.0",
     "eslint-config-teppeis": "^12.0.0",
@@ -36,5 +30,13 @@
     "rimraf": "^3.0.2",
     "ts-jest": "^26.4.4",
     "typescript": "^4.1.3"
-  }
+  },
+  "homepage": "https://github.com/teppeis/kqb",
+  "repository": "teppeis/kqb",
+  "keywords": [
+    "kintone",
+    "query",
+    "typescript"
+  ],
+  "license": "MIT"
 }
