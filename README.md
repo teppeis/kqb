@@ -1,6 +1,6 @@
 # kqb
 
-Type-safe query builder for [Kintone](https://www.kintone.com).
+Type-safe query builder for [Kintone](https://www.kintone.com)
 
 [![npm version][npm-image]][npm-url]
 ![supported Node.js version][node-version]
@@ -9,8 +9,7 @@ Type-safe query builder for [Kintone](https://www.kintone.com).
 ![dependency count][deps-count-image]
 ![license][license]
 
-
-## Design goal
+## Why?
 
 - Type-safe for your app schema
 - Less typing with IDE completion
@@ -19,49 +18,209 @@ Type-safe query builder for [Kintone](https://www.kintone.com).
 ## Install
 
 ```console
-$ npm i kqb
+$ npm install kqb
 ```
 
-## Usage
+_Requires TypeScript >= 4.1 (for [Template Literal Types](https://devblogs.microsoft.com/typescript/announcing-typescript-4-1/#template-literal-types))_
 
-### Type-safe query building
+## Usage
 
 ```ts
 import { createBuilder } from "kqb";
 
 const fields = {
-    name: "SINGLE_LINE_TEXT",
-    age: "NUMBER",
+  name: "SINGLE_LINE_TEXT",
+  age: "NUMBER",
 } as const;
 
 const { builder, field } = createBuilder(fields);
 const query: string = builder
-    .where(field("name").eq("foo"))
-    .and(field("age").gt(20))
-    .orderBy("age", "desc")
-    .limit(100)
-    .offset(200)
-    .build();
+  .where(field("name").eq("foo"))
+  .and(field("age").gt(20))
+  .orderBy("age", "desc")
+  .limit(100)
+  .offset(200)
+  .build();
 console.log(query);
-// name = "foo" and age > 20 order by age desc limit 100 offset 200
+// name = "foo" and age > "20" order by age desc limit 100 offset 200
 ```
+
+## API
+
+This pacakge exports the following functions at the top level.
+
+- `createBuilder`
+- `and`
+- `or`
+
+```ts
+import { createBuilder, and, or } from "kqb";
+```
+
+### `createBuilder(fields?): { builder, field }`
+
+Returns a `builder` function and a `field` function.
+
+The `fields` param is field definition JSON of your target kintone app.
+The key is a field code and the value is a field type like:
+
+```ts
+const fields = {
+  name: "SINGLE_LINE_TEXT",
+  age: "NUMBER",
+} as const;
+// In TypeScript, you MUST use `as const`
+```
+
+According to this, kqb performs static type checking and runtime validation.
+
+- Correct field codes
+- Correct type of value to compare for the field type
+- Condition operators available for the field type
+- Only sortable fields can be used in `order by`
+
+If `fields` are omitted, the checking is mostly disabled. See tips below.
+
+All field types:
+
+- `CALC`
+- `CHECK_BOX`
+- `CREATED_TIME`
+- `CREATOR`
+- `DATE`
+- `DATETIME`
+- `DROP_DOWN`
+- `FILE`
+- `GROUP_SELECT`
+- `LINK`
+- `MODIFIER`
+- `MULTI_LINE_TEXT`
+- `MULTI_SELECT`
+- `NUMBER`
+- `ORGANIZATION_SELECT`
+- `RADIO_BUTTON`
+- `RECORD_NUMBER`
+- `RICH_TEXT`
+- `SINGLE_LINE_TEXT`
+- `STATUS`
+- `STATUS_ASSIGNEE`
+- `TIME`
+- `UPDATED_TIME`
+- `USER_SELECT`
+- `SUBTABLE`: see below
+- `REFERENCE_TABLE`: see below
+
+#### Subtables and Reference tables
+
+Specify subtables and reference tables as follows:
+
+```ts
+const defs = {
+  id: "NUMBER"
+  name: "SINGLE_LINE_TEXT",
+  history: {
+    $type: "SUBTABLE",
+    $fields: {
+      date: "DATE",
+      title: "SINGLE_LINE_TEXT",
+    },
+  },
+  items: {
+    $type: "REFERENCE_TABLE",
+    $fields: {
+      price: "NUMBER",
+      count: "NUMBER",
+    },
+  },
+} as const;
+```
+
+Note the following spec of Kintone.
+
+- Fields in subtables and reference tables are not sortable.
+- Use `in / not in` instead of `= / !=` for fields in subtables and reference tables.
+- Use `"tableCode.fieldCode"` as field code for fields in reference tables like `field("items.price")` in the example above.
+
+### `builder`
+
+`builder` has the following methods.
+
+- `.where(...condition[]): builder`
+  - Same as `.and()`
+- `.and(...condition[]): builder`
+- `.or(...condition[]): builder`
+- `.orderBy(fieldCode, direction): builder`
+- `.orderBy(...[fieldCode, direction][]): builder`
+  - `fieldCode`: a field code of sortable field types
+  - `direction`: `"asc"` or `"desc"`
+- `.offset(num): builder`
+- `.limit(num): builder`
+- `.build(): string`
+
+`condition` is returned by `operator` methods.
+You can get it from `field(fieldCode)` with method chain like:
+
+```ts
+builder.where(field("name").eq("Bob"), field("age").gt(20)).build();
+// name = "Bob" and age > "20"
+```
+
+### `field(fieldCode): operator`
+
+Returns a `operator` for the field with the `fieldCode`.
+The `operator` has only those of the following methods that are available for the field type.
+
+- `.eq(value)`: `"= value"`
+- `.notEq(value)`: `"!= value"`
+- `.gt(value)`: `"> value"`
+- `.gtOrEq(value)`: `">= value"`
+- `.lt(value)`: `"< value"`
+- `.ltOrEq(value)`: `"<= value"`
+- `.like(value)`: `"like value"`
+- `.notLike(value)`: `"not like value"`
+- `.in(...value[])`: `"in (value1, value2, ...)"`
+- `.notIn(...value[])`: `"not in (value1, value2, ...)"`
+
+### `and(...condition[])`, `or(...condition[])`
+
+If you want to use nested conditions, use `and()` or `or()`.
+
+```ts
+import { createBuilder, and, or } from "kqb";
+
+const fields = {
+  foo: "NUMBER",
+  bar: "NUMBER",
+} as const;
+
+const { builder, field } = createBuilder(fields);
+const query = builder
+  .where(or(field("foo").eq(1), field("bar").eq(2)))
+  .and(or(field("foo").eq(3), field("bar").eq(4)))
+  .or(and(field("foo").eq(5), field("bar").eq(6)))
+  .build();
+console.log(query);
+// (foo = "1" or bar = "2") and (foo = "3" or bar = "4") or (foo = "5" and bar = "6")
+```
+
+## Tips
 
 ### Non type-safe query building
 
-If you just want to build a query and do not want type-safety, you can omit the field definition argument of `creatBuilder()`.
-Note that you can easily get the query string, but no type error will be thrown if the query is logically wrong.
+If you just want to build a query and do not want type-safety, you can omit the field definition argument of `creatBuilder(fields?)`.
+You can get the query string easily, but note that type checking will not raise an error if the query is logically wrong.
+The operators has all methods and orderBy receives all fields, but potentially, it may not work.
 
 ```ts
 const { builder, field } = createBuilder(); // omit the first argument
 const query: string = builder
-    .where(field("non_existent_field").gt(20))
-    .and(field("number_field").like("can_not_actually_use_like_operator"))
-    .orderBy("non_sortable_field", "desc")
-    .build();
+  .where(field("non_existent_field").gt(20))
+  .and(field("number_field").like("can_not_actually_use_like_operator"))
+  .orderBy("non_sortable_field", "asc")
+  .build();
 ```
 
 ## License
-
 
 MIT License: Teppei Sato &lt;teppeis@gmail.com&gt;
 
