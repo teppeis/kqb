@@ -34,7 +34,7 @@ const fields = {
 } as const;
 
 const { builder, field } = createBuilder(fields);
-const query: string = builder
+const query = builder
   .where(field("name").eq("foo"))
   .and(field("age").gt(20))
   .orderBy("age", "desc")
@@ -213,11 +213,30 @@ The operators has all methods and orderBy receives all fields, but potentially, 
 
 ```ts
 const { builder, field } = createBuilder(); // omit the first argument
-const query: string = builder
+const query = builder
   .where(field("non_existent_field").gt(20))
   .and(field("number_field").like("can_not_actually_use_like_operator"))
   .orderBy("non_sortable_field", "asc")
   .build();
+```
+
+### Multiple fields in `order by`
+
+There are two ways to do this.
+
+```ts
+const query = builder
+  .orderBy("foo", "asc")
+  .orderBy("bar", "desc")
+  .build();
+console.log(query);
+// order by foo asc, bar desc
+
+const query = builder
+  .orderBy(["foo", "asc"], ["bar", "desc"])
+  .build();
+console.log(query);
+// order by foo asc, bar desc
 ```
 
 ## License
