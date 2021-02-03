@@ -1,5 +1,5 @@
 import { InCondition, SingleCondition } from "./conditions";
-import type { AnyFunctions, DateFunctions, UserFunctions } from "./functions";
+import type { AnyFunctions, DateFunctions, DatetimeFunctions, UserFunctions } from "./functions";
 
 type Class<ConstructorArgs extends any[], InstanceType> = {
   new (...args: ConstructorArgs): InstanceType;
@@ -165,19 +165,16 @@ const TextOperator = mixin<
 
 const TextOperators = [TextOperator, TextOperator] as const;
 
-const SelectionOperator = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  InOperatorMixin<string>
->(OperatorBase, InOperatorMixin);
-const SelectionOperators = [SelectionOperator, SelectionOperator] as const;
-
-const UserOperator = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  InOperatorMixin<string | UserFunctions>
->(OperatorBase, InOperatorMixin);
-const UserOperators = [UserOperator, UserOperator] as const;
+function createSelectionOperator<T>() {
+  const SelectionOperator = mixin<
+    ConstructorParameters<typeof OperatorBase>,
+    OperatorBase,
+    InOperatorMixin<T>
+  >(OperatorBase, InOperatorMixin);
+  return [SelectionOperator, SelectionOperator] as const;
+}
+const SelectionOperators = createSelectionOperator<string>();
+const UserOperators = createSelectionOperator<string | UserFunctions>();
 
 const StatusOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
@@ -195,37 +192,25 @@ const StatusOperatorForTable = mixin<
 
 const StatusOperators = [StatusOperator, StatusOperatorForTable] as const;
 
-const DateTimeOperator = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  EqualOperatorMixin<string>,
-  InequalOperatorMixin<string>
->(OperatorBase, EqualOperatorMixin, InequalOperatorMixin);
+function createDateTimeOperator<T>() {
+  const DateTimeOperator = mixin<
+    ConstructorParameters<typeof OperatorBase>,
+    OperatorBase,
+    EqualOperatorMixin<T>,
+    InequalOperatorMixin<T>
+  >(OperatorBase, EqualOperatorMixin, InequalOperatorMixin);
 
-const DateTimeOperatorForTable = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  InOperatorMixin<string>,
-  InequalOperatorMixin<string>
->(OperatorBase, InOperatorMixin, InequalOperatorMixin);
+  const DateTimeOperatorForTable = mixin<
+    ConstructorParameters<typeof OperatorBase>,
+    OperatorBase,
+    InOperatorMixin<T>,
+    InequalOperatorMixin<T>
+  >(OperatorBase, InOperatorMixin, InequalOperatorMixin);
 
-const DateTimeOperators = [DateTimeOperator, DateTimeOperatorForTable] as const;
-
-const DateOperator = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  EqualOperatorMixin<string | DateFunctions>,
-  InequalOperatorMixin<string | DateFunctions>
->(OperatorBase, EqualOperatorMixin, InequalOperatorMixin);
-
-const DateOperatorForTable = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  InOperatorMixin<string | DateFunctions>,
-  InequalOperatorMixin<string | DateFunctions>
->(OperatorBase, InOperatorMixin, InequalOperatorMixin);
-
-const DateOperators = [DateOperator, DateOperatorForTable] as const;
+  return [DateTimeOperator, DateTimeOperatorForTable] as const;
+}
+const DateTimeOperators = createDateTimeOperator<string | DatetimeFunctions>();
+const DateOperators = createDateTimeOperator<string | DateFunctions>();
 
 export const AnyOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
