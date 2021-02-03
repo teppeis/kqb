@@ -1,5 +1,5 @@
 export class QueryFunction<T extends string> {
-  #name: string;
+  #name: T;
   #args: string[];
   /**
    * @param name
@@ -35,3 +35,4 @@ type DistributeQueryFunction<T> = T extends string ? QueryFunction<T> : never;
 export type UserFunctions = DistributeQueryFunction<"LOGINUSER">;
 export type DatetimeFunctions = DistributeQueryFunction<"NOW" | "TODAY" | "FROM_TODAY">;
 export type DateFunctions = DistributeQueryFunction<"TODAY" | "FROM_TODAY">;
+export type AnyFunctions = DistributeQueryFunction<"LOGINUSER" | "NOW" | "TODAY" | "FROM_TODAY">;

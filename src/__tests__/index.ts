@@ -1,4 +1,4 @@
-import { createBuilder, and, or } from "..";
+import { and, createBuilder, or } from "..";
 import * as functions from "../functions";
 
 describe("Builder", () => {
@@ -415,5 +415,26 @@ describe("or()", () => {
     expect(or(field("foo").eq("bar"), field("baz").like("qux")).toQuery()).toBe(
       `(foo = "bar" or baz like "qux")`
     );
+  });
+});
+
+describe("functions", () => {
+  const defs = {
+    user: "USER_SELECT",
+    date: "DATE",
+    datetime: "DATETIME",
+  } as const;
+
+  describe("Date type", () => {
+    test("DATE accepts TODAY()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("date").eq(functions.TODAY()).toQuery()).toBe(`date = TODAY()`);
+    });
+
+    test("DATE doesn't accept LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      // @ts-expect-error
+      field("date").eq(functions.LOGINUSER());
+    });
   });
 });

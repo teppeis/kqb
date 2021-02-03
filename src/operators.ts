@@ -1,5 +1,5 @@
 import { InCondition, SingleCondition } from "./conditions";
-import type { QueryFunction } from "./functions";
+import type { AnyFunctions, DateFunctions } from "./functions";
 
 type Class<ConstructorArgs extends any[], InstanceType> = {
   new (...args: ConstructorArgs): InstanceType;
@@ -55,7 +55,7 @@ export class EqualOperatorMixin<T> extends OperatorBase {
   /**
    * `=` operator
    */
-  eq(value: T | QueryFunction<"TODAY">) {
+  eq(value: T) {
     return new SingleCondition(this.getField(), "=", value);
   }
   /**
@@ -195,21 +195,37 @@ const DateTimeOperator = mixin<
   InequalOperatorMixin<string>
 >(OperatorBase, EqualOperatorMixin, InequalOperatorMixin);
 
-const DateTimeOperatorForDate = mixin<
+const DateTimeOperatorForTable = mixin<
   ConstructorParameters<typeof OperatorBase>,
   OperatorBase,
   InOperatorMixin<string>,
   InequalOperatorMixin<string>
 >(OperatorBase, InOperatorMixin, InequalOperatorMixin);
 
-const DateTimeOperators = [DateTimeOperator, DateTimeOperatorForDate] as const;
+const DateTimeOperators = [DateTimeOperator, DateTimeOperatorForTable] as const;
+
+const DateOperator = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  EqualOperatorMixin<string | DateFunctions>,
+  InequalOperatorMixin<string | DateFunctions>
+>(OperatorBase, EqualOperatorMixin, InequalOperatorMixin);
+
+const DateOperatorForTable = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  InOperatorMixin<string | DateFunctions>,
+  InequalOperatorMixin<string | DateFunctions>
+>(OperatorBase, InOperatorMixin, InequalOperatorMixin);
+
+const DateOperators = [DateOperator, DateOperatorForTable] as const;
 
 export const AnyOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
   OperatorBase,
-  EqualOperatorMixin<string>,
-  InequalOperatorMixin<string>,
-  InOperatorMixin<string>,
+  EqualOperatorMixin<string | AnyFunctions>,
+  InequalOperatorMixin<string | AnyFunctions>,
+  InOperatorMixin<string | AnyFunctions>,
   LikeOperatorMixin
 >(OperatorBase, EqualOperatorMixin, InequalOperatorMixin, InOperatorMixin, LikeOperatorMixin);
 export type AnyOperator = InstanceType<typeof AnyOperator>;
@@ -219,7 +235,7 @@ export const FieldTypeOperators = {
   CHECK_BOX: SelectionOperators,
   CREATED_TIME: DateTimeOperators,
   CREATOR: SelectionOperators,
-  DATE: DateTimeOperators,
+  DATE: DateOperators,
   DATETIME: DateTimeOperators,
   DROP_DOWN: SelectionOperators,
   FILE: TextOperators,
