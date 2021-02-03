@@ -1,4 +1,5 @@
 import { createBuilder, and, or } from "..";
+import * as functions from "../functions";
 
 describe("Builder", () => {
   test("empty build()", () => {
@@ -128,6 +129,11 @@ describe("Condition", () => {
   test("eq(): escape double quotes", () => {
     const { field } = createBuilder();
     expect(field("foo").eq(`b"a"r`).toQuery()).toBe(`foo = "b\\"a\\"r"`);
+  });
+
+  test("eq() accepts function TODAY()", () => {
+    const { field } = createBuilder();
+    expect(field("foo").eq(functions.TODAY()).toQuery()).toBe(`foo = TODAY()`);
   });
 
   test("gt()", () => {

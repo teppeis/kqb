@@ -1,4 +1,5 @@
 import { InCondition, SingleCondition } from "./conditions";
+import type { QueryFunction } from "./functions";
 
 type Class<ConstructorArgs extends any[], InstanceType> = {
   new (...args: ConstructorArgs): InstanceType;
@@ -54,7 +55,7 @@ export class EqualOperatorMixin<T> extends OperatorBase {
   /**
    * `=` operator
    */
-  eq(value: T) {
+  eq(value: T | QueryFunction<"TODAY">) {
     return new SingleCondition(this.getField(), "=", value);
   }
   /**
