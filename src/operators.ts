@@ -1,5 +1,5 @@
 import { InCondition, SingleCondition } from "./conditions";
-import type { AnyFunctions, DateFunctions } from "./functions";
+import type { AnyFunctions, DateFunctions, UserFunctions } from "./functions";
 
 type Class<ConstructorArgs extends any[], InstanceType> = {
   new (...args: ConstructorArgs): InstanceType;
@@ -172,6 +172,13 @@ const SelectionOperator = mixin<
 >(OperatorBase, InOperatorMixin);
 const SelectionOperators = [SelectionOperator, SelectionOperator] as const;
 
+const UserOperator = mixin<
+  ConstructorParameters<typeof OperatorBase>,
+  OperatorBase,
+  InOperatorMixin<string | UserFunctions>
+>(OperatorBase, InOperatorMixin);
+const UserOperators = [UserOperator, UserOperator] as const;
+
 const StatusOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
   OperatorBase,
@@ -234,14 +241,14 @@ export const FieldTypeOperators = {
   CALC: NumericOperators,
   CHECK_BOX: SelectionOperators,
   CREATED_TIME: DateTimeOperators,
-  CREATOR: SelectionOperators,
+  CREATOR: UserOperators,
   DATE: DateOperators,
   DATETIME: DateTimeOperators,
   DROP_DOWN: SelectionOperators,
   FILE: TextOperators,
   GROUP_SELECT: SelectionOperators,
   LINK: StringOperators,
-  MODIFIER: SelectionOperators,
+  MODIFIER: UserOperators,
   MULTI_LINE_TEXT: TextOperators,
   MULTI_SELECT: SelectionOperators,
   NUMBER: NumericOperators,
@@ -254,7 +261,7 @@ export const FieldTypeOperators = {
   STATUS_ASSIGNEE: SelectionOperators,
   TIME: DateTimeOperators,
   UPDATED_TIME: DateTimeOperators,
-  USER_SELECT: SelectionOperators,
+  USER_SELECT: UserOperators,
 } as const;
 
 export type FieldTypeOperators = {

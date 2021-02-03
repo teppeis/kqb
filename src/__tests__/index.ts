@@ -423,6 +423,12 @@ describe("functions", () => {
     user: "USER_SELECT",
     date: "DATE",
     datetime: "DATETIME",
+    reftable: {
+      $type: "REFERENCE_TABLE",
+      $fields: {
+        date: "DATE",
+      },
+    },
   } as const;
 
   describe("Date type", () => {
@@ -435,6 +441,30 @@ describe("functions", () => {
       const { field } = createBuilder(defs);
       // @ts-expect-error
       field("date").eq(functions.LOGINUSER());
+    });
+
+    test("DATE in a reference table accepts TODAY()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("reftable.date").in(functions.TODAY()).toQuery()).toBe(
+        `reftable.date in (TODAY())`
+      );
+    });
+
+    test("DATE in a reference table doesn't accept LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      // @ts-expect-error
+      field("reftable.date").in(functions.LOGINUSER());
+    });
+
+    test("USER_SELECT accepts LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("user").in(functions.LOGINUSER()).toQuery()).toBe(`user in (LOGINUSER())`);
+    });
+
+    test("USER_SELECT doesn't accept TODAY()", () => {
+      const { field } = createBuilder(defs);
+      // @ts-expect-error
+      field("user").in(functions.TODAY());
     });
   });
 });
