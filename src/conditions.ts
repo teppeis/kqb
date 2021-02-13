@@ -46,13 +46,11 @@ class AndOrCondition implements Condition {
   }
 }
 
-export const and = (condition: Condition, ...conditions: Condition[]) => {
-  return new AndOrCondition("and", condition, ...conditions);
-};
+export const and = (condition: Condition, ...conditions: Condition[]) =>
+  new AndOrCondition("and", condition, ...conditions);
 
-export const or = (condition: Condition, ...conditions: Condition[]) => {
-  return new AndOrCondition("or", condition, ...conditions);
-};
+export const or = (condition: Condition, ...conditions: Condition[]) =>
+  new AndOrCondition("or", condition, ...conditions);
 
 /**
  * Escape string literal in query parameters

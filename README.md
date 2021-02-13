@@ -215,7 +215,9 @@ The operators has all methods and orderBy receives all fields, but potentially, 
 const { builder, field } = createBuilder(); // omit the first argument
 const query = builder
   .where(field("non_existent_field").gt(20))
-  .and(field("number_field").like("can_not_actually_use_like_operator"))
+  .and(
+    field("number_field").like("can_not_actually_use_like_operator")
+  )
   .orderBy("non_sortable_field", "asc")
   .build();
 ```
