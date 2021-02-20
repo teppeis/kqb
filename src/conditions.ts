@@ -1,3 +1,5 @@
+import { QueryFunction } from "./functions-internal";
+
 export interface Condition {
   toQuery(): string;
 }
@@ -12,7 +14,15 @@ export class SingleCondition<T> implements Condition {
     this.#value = value;
   }
   toQuery(): string {
-    return `${this.#field} ${this.#op} "${esc(String(this.#value))}"`;
+    return `${this.#field} ${this.#op} ${stringifyValue(this.#value)}`;
+  }
+}
+
+function stringifyValue(value: any): string {
+  if (value instanceof QueryFunction) {
+    return value.toString();
+  } else {
+    return `"${esc(String(value))}"`;
   }
 }
 
@@ -29,7 +39,7 @@ export class InCondition<T> implements Condition {
     this.#values = values;
   }
   toQuery(): string {
-    const values = this.#values.map((v) => `"${esc(String(v))}"`).join(", ");
+    const values = this.#values.map((v) => `${stringifyValue(v)}`).join(", ");
     return `${this.#field} ${this.#op} (${values})`;
   }
 }

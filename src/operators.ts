@@ -1,4 +1,11 @@
 import { InCondition, SingleCondition } from "./conditions";
+import type {
+  AnyFunctions,
+  DateFunctions,
+  DatetimeFunctions,
+  OrganizationFunctions,
+  UserFunctions,
+} from "./functions-internal";
 
 type Class<ConstructorArgs extends any[], InstanceType> = {
   new (...args: ConstructorArgs): InstanceType;
@@ -164,12 +171,17 @@ const TextOperator = mixin<
 
 const TextOperators = [TextOperator, TextOperator] as const;
 
-const SelectionOperator = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  InOperatorMixin<string>
->(OperatorBase, InOperatorMixin);
-const SelectionOperators = [SelectionOperator, SelectionOperator] as const;
+function createSelectionOperator<T>() {
+  const SelectionOperator = mixin<
+    ConstructorParameters<typeof OperatorBase>,
+    OperatorBase,
+    InOperatorMixin<T>
+  >(OperatorBase, InOperatorMixin);
+  return [SelectionOperator, SelectionOperator] as const;
+}
+const SelectionOperators = createSelectionOperator<string>();
+const UserOperators = createSelectionOperator<string | UserFunctions>();
+const OrganizaionOperators = createSelectionOperator<string | OrganizationFunctions>();
 
 const StatusOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
@@ -187,28 +199,33 @@ const StatusOperatorForTable = mixin<
 
 const StatusOperators = [StatusOperator, StatusOperatorForTable] as const;
 
-const DateTimeOperator = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  EqualOperatorMixin<string>,
-  InequalOperatorMixin<string>
->(OperatorBase, EqualOperatorMixin, InequalOperatorMixin);
+function createDateTimeOperator<T>() {
+  const DateTimeOperator = mixin<
+    ConstructorParameters<typeof OperatorBase>,
+    OperatorBase,
+    EqualOperatorMixin<T>,
+    InequalOperatorMixin<T>
+  >(OperatorBase, EqualOperatorMixin, InequalOperatorMixin);
 
-const DateTimeOperatorForDate = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  InOperatorMixin<string>,
-  InequalOperatorMixin<string>
->(OperatorBase, InOperatorMixin, InequalOperatorMixin);
+  const DateTimeOperatorForTable = mixin<
+    ConstructorParameters<typeof OperatorBase>,
+    OperatorBase,
+    InOperatorMixin<T>,
+    InequalOperatorMixin<T>
+  >(OperatorBase, InOperatorMixin, InequalOperatorMixin);
 
-const DateTimeOperators = [DateTimeOperator, DateTimeOperatorForDate] as const;
+  return [DateTimeOperator, DateTimeOperatorForTable] as const;
+}
+const TimeOperators = createDateTimeOperator<string>();
+const DateTimeOperators = createDateTimeOperator<string | DatetimeFunctions>();
+const DateOperators = createDateTimeOperator<string | DateFunctions>();
 
 export const AnyOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
   OperatorBase,
-  EqualOperatorMixin<string>,
-  InequalOperatorMixin<string>,
-  InOperatorMixin<string>,
+  EqualOperatorMixin<string | AnyFunctions>,
+  InequalOperatorMixin<string | AnyFunctions>,
+  InOperatorMixin<string | AnyFunctions>,
   LikeOperatorMixin
 >(OperatorBase, EqualOperatorMixin, InequalOperatorMixin, InOperatorMixin, LikeOperatorMixin);
 export type AnyOperator = InstanceType<typeof AnyOperator>;
@@ -217,27 +234,27 @@ export const FieldTypeOperators = {
   CALC: NumericOperators,
   CHECK_BOX: SelectionOperators,
   CREATED_TIME: DateTimeOperators,
-  CREATOR: SelectionOperators,
-  DATE: DateTimeOperators,
+  CREATOR: UserOperators,
+  DATE: DateOperators,
   DATETIME: DateTimeOperators,
   DROP_DOWN: SelectionOperators,
   FILE: TextOperators,
   GROUP_SELECT: SelectionOperators,
   LINK: StringOperators,
-  MODIFIER: SelectionOperators,
+  MODIFIER: UserOperators,
   MULTI_LINE_TEXT: TextOperators,
   MULTI_SELECT: SelectionOperators,
   NUMBER: NumericOperators,
-  ORGANIZATION_SELECT: SelectionOperators,
+  ORGANIZATION_SELECT: OrganizaionOperators,
   RADIO_BUTTON: SelectionOperators,
   RECORD_NUMBER: NumericOperators,
   RICH_TEXT: TextOperators,
   SINGLE_LINE_TEXT: StringOperators,
   STATUS: StatusOperators,
   STATUS_ASSIGNEE: SelectionOperators,
-  TIME: DateTimeOperators,
+  TIME: TimeOperators,
   UPDATED_TIME: DateTimeOperators,
-  USER_SELECT: SelectionOperators,
+  USER_SELECT: UserOperators,
 } as const;
 
 export type FieldTypeOperators = {

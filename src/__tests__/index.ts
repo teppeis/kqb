@@ -1,4 +1,5 @@
-import { createBuilder, and, or } from "..";
+import { and, createBuilder, or } from "..";
+import * as functions from "../functions";
 
 describe("Builder", () => {
   test("empty build()", () => {
@@ -128,6 +129,11 @@ describe("Condition", () => {
   test("eq(): escape double quotes", () => {
     const { field } = createBuilder();
     expect(field("foo").eq(`b"a"r`).toQuery()).toBe(`foo = "b\\"a\\"r"`);
+  });
+
+  test("eq() accepts function TODAY()", () => {
+    const { field } = createBuilder();
+    expect(field("foo").eq(functions.TODAY()).toQuery()).toBe(`foo = TODAY()`);
   });
 
   test("gt()", () => {
@@ -409,5 +415,63 @@ describe("or()", () => {
     expect(or(field("foo").eq("bar"), field("baz").like("qux")).toQuery()).toBe(
       `(foo = "bar" or baz like "qux")`
     );
+  });
+});
+
+describe("functions", () => {
+  const defs = {
+    user: "USER_SELECT",
+    org: "ORGANIZATION_SELECT",
+    date: "DATE",
+    datetime: "DATETIME",
+    reftable: {
+      $type: "REFERENCE_TABLE",
+      $fields: {
+        date: "DATE",
+      },
+    },
+  } as const;
+
+  describe("Date type", () => {
+    test("DATE accepts TODAY()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("date").eq(functions.TODAY()).toQuery()).toBe(`date = TODAY()`);
+    });
+
+    test("DATE doesn't accept LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      // @ts-expect-error
+      field("date").eq(functions.LOGINUSER());
+    });
+
+    test("DATE in a reference table accepts TODAY()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("reftable.date").in(functions.TODAY()).toQuery()).toBe(
+        `reftable.date in (TODAY())`
+      );
+    });
+
+    test("DATE in a reference table doesn't accept LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      // @ts-expect-error
+      field("reftable.date").in(functions.LOGINUSER());
+    });
+
+    test("USER_SELECT accepts LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("user").in(functions.LOGINUSER()).toQuery()).toBe(`user in (LOGINUSER())`);
+    });
+
+    test("USER_SELECT doesn't accept TODAY()", () => {
+      const { field } = createBuilder(defs);
+      // @ts-expect-error
+      field("user").in(functions.TODAY());
+    });
+    test("ORGANIZATION_SELECT accepts LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("org").in(functions.PRIMARY_ORGANIZATION()).toQuery()).toBe(
+        `org in (PRIMARY_ORGANIZATION())`
+      );
+    });
   });
 });
