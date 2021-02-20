@@ -214,6 +214,7 @@ function createDateTimeOperator<T>() {
 
   return [DateTimeOperator, DateTimeOperatorForTable] as const;
 }
+const TimeOperators = createDateTimeOperator<string>();
 const DateTimeOperators = createDateTimeOperator<string | DatetimeFunctions>();
 const DateOperators = createDateTimeOperator<string | DateFunctions>();
 
@@ -249,7 +250,7 @@ export const FieldTypeOperators = {
   SINGLE_LINE_TEXT: StringOperators,
   STATUS: StatusOperators,
   STATUS_ASSIGNEE: SelectionOperators,
-  TIME: DateTimeOperators,
+  TIME: TimeOperators,
   UPDATED_TIME: DateTimeOperators,
   USER_SELECT: UserOperators,
 } as const;
