@@ -81,7 +81,7 @@ According to this, kqb performs static type checking and runtime validation.
 
 If `fields` are omitted, the checking is mostly disabled. See tips below.
 
-All field types:
+All field types are supported:
 
 - `CALC`
 - `CHECK_BOX`
@@ -202,6 +202,58 @@ const query = builder
 console.log(query);
 // (foo = "1" or bar = "2") and (foo = "3" or bar = "4") or (foo = "5" and bar = "6")
 ```
+
+### Query Functions
+
+Kintone provides [query functions](https://developer.kintone.io/hc/en-us/articles/360019245194) like `TODAY()` and `LOGINUSER()`
+
+```sql
+created_time = TODAY() and creator in (LOGINUSER())
+```
+
+To use query functions, import them and specify them in query operators.
+
+```ts
+import { createBuilder, LOGINUSER, TODAY } from "kqb";
+
+const fields = {
+  created_time: "CREATED_TIME",
+  creator: "CREATOR",
+} as const;
+
+const { builder, field } = createBuilder(fields);
+const query = builder
+  .where(field("created_time").eq(TODAY()))
+  .and(field("creator").in(LOGINUSER()))
+  .build();
+console.log(query);
+// created_time = TODAY() and creator in (LOGINUSER())
+```
+
+Also you can import all functions as namespace from `kqb/functions`.
+
+```ts
+import * as functions from "kqb/functions";
+```
+
+All query functions are supported:
+
+- `LOGINUSER`
+- `PRIMARY_ORGANIZATION`
+- `NOW`
+- `TODAY`
+- `YESTERDAY`
+- `TOMORROW`
+- `FROM_TODAY`
+- `THIS_WEEK`
+- `LAST_WEEK`
+- `NEXT_WEEK`
+- `THIS_MONTH`
+- `LAST_MONTH`
+- `NEXT_MONTH`
+- `THIS_YEAR`
+- `LAST_YEAR`
+- `NEXT_YEAR`
 
 ## Tips
 
