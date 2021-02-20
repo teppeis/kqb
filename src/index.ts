@@ -4,6 +4,7 @@ import { AnyOperator, FieldTypeOperators } from "./operators";
 import type { KeysByValue, StringKeyOf } from "./type-utils";
 
 export { and, or } from "./conditions";
+export * from "./functions";
 
 const BuiltinField = { $id: "RECORD_NUMBER" } as const;
 type WithBuiltin<T> = T & typeof BuiltinField;

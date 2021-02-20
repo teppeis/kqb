@@ -47,16 +47,6 @@ console.log(query);
 
 ## API
 
-This pacakge exports the following functions at the top level.
-
-- `createBuilder`
-- `and`
-- `or`
-
-```ts
-import { createBuilder, and, or } from "kqb";
-```
-
 ### `createBuilder(fields?): { builder, field }`
 
 Returns a `builder` function and a `field` function.
