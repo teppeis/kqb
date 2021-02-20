@@ -20,5 +20,6 @@ jobs:
         with:
           path: ~/.npm
           key: npm-${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+      - run: npm i -g npm@latest
       - run: npm ci
       - run: npm test
