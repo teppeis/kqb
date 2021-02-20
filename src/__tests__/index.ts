@@ -421,6 +421,7 @@ describe("or()", () => {
 describe("functions", () => {
   const defs = {
     user: "USER_SELECT",
+    org: "ORGANIZATION_SELECT",
     date: "DATE",
     datetime: "DATETIME",
     reftable: {
@@ -465,6 +466,12 @@ describe("functions", () => {
       const { field } = createBuilder(defs);
       // @ts-expect-error
       field("user").in(functions.TODAY());
+    });
+    test("ORGANIZATION_SELECT accepts LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("org").in(functions.PRIMARY_ORGANIZATION()).toQuery()).toBe(
+        `org in (PRIMARY_ORGANIZATION())`
+      );
     });
   });
 });

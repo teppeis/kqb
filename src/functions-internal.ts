@@ -1,13 +1,19 @@
 type UserFunctionName = "LOGINUSER";
+type OrganizationFunctionName = "PRIMARY_ORGANIZATION";
 type DateFunctionName = "TODAY" | "FROM_TODAY";
 type DateTimeFunctionName = "NOW" | DateFunctionName;
-type QueryFunctionName = UserFunctionName | DateFunctionName | DateTimeFunctionName;
+type QueryFunctionName =
+  | UserFunctionName
+  | OrganizationFunctionName
+  | DateFunctionName
+  | DateTimeFunctionName;
 
 type DistributeQueryFunction<T extends QueryFunctionName> = T extends QueryFunctionName
   ? QueryFunction<T>
   : never;
 
 export type UserFunctions = DistributeQueryFunction<UserFunctionName>;
+export type OrganizationFunctions = DistributeQueryFunction<OrganizationFunctionName>;
 export type DatetimeFunctions = DistributeQueryFunction<DateTimeFunctionName>;
 export type DateFunctions = DistributeQueryFunction<DateFunctionName>;
 export type AnyFunctions = DistributeQueryFunction<QueryFunctionName>;

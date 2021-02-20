@@ -3,6 +3,7 @@ import type {
   AnyFunctions,
   DateFunctions,
   DatetimeFunctions,
+  OrganizationFunctions,
   UserFunctions,
 } from "./functions-internal";
 
@@ -180,6 +181,7 @@ function createSelectionOperator<T>() {
 }
 const SelectionOperators = createSelectionOperator<string>();
 const UserOperators = createSelectionOperator<string | UserFunctions>();
+const OrganizaionOperators = createSelectionOperator<string | OrganizationFunctions>();
 
 const StatusOperator = mixin<
   ConstructorParameters<typeof OperatorBase>,
@@ -243,7 +245,7 @@ export const FieldTypeOperators = {
   MULTI_LINE_TEXT: TextOperators,
   MULTI_SELECT: SelectionOperators,
   NUMBER: NumericOperators,
-  ORGANIZATION_SELECT: SelectionOperators,
+  ORGANIZATION_SELECT: OrganizaionOperators,
   RADIO_BUTTON: SelectionOperators,
   RECORD_NUMBER: NumericOperators,
   RICH_TEXT: TextOperators,
