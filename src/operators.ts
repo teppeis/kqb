@@ -1,5 +1,10 @@
 import { InCondition, SingleCondition } from "./conditions";
-import type { AnyFunctions, DateFunctions, DatetimeFunctions, UserFunctions } from "./functions";
+import type {
+  AnyFunctions,
+  DateFunctions,
+  DatetimeFunctions,
+  UserFunctions,
+} from "./functions-internal";
 
 type Class<ConstructorArgs extends any[], InstanceType> = {
   new (...args: ConstructorArgs): InstanceType;

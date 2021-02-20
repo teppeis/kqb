@@ -1,4 +1,4 @@
-import { QueryFunction } from "./functions";
+import { QueryFunction } from "./functions-internal";
 
 export interface Condition {
   toQuery(): string;
