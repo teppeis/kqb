@@ -1,6 +1,19 @@
 type UserFunctionName = "LOGINUSER";
 type OrganizationFunctionName = "PRIMARY_ORGANIZATION";
-type DateFunctionName = "TODAY" | "FROM_TODAY";
+type DateFunctionName =
+  | "TODAY"
+  | "YESTERDAY"
+  | "TOMORROW"
+  | "FROM_TODAY"
+  | "THIS_WEEK"
+  | "LAST_WEEK"
+  | "NEXT_WEEK"
+  | "THIS_MONTH"
+  | "LAST_MONTH"
+  | "NEXT_MONTH"
+  | "THIS_YEAR"
+  | "LAST_YEAR"
+  | "NEXT_YEAR";
 type DateTimeFunctionName = "NOW" | DateFunctionName;
 type QueryFunctionName =
   | UserFunctionName
