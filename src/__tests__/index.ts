@@ -419,29 +419,60 @@ describe("or()", () => {
 });
 
 describe("functions", () => {
-  const defs = {
-    user: "USER_SELECT",
-    org: "ORGANIZATION_SELECT",
-    date: "DATE",
-    datetime: "DATETIME",
-    reftable: {
-      $type: "REFERENCE_TABLE",
-      $fields: {
-        date: "DATE",
+  describe("DATE field", () => {
+    const defs = {
+      date: "DATE",
+      reftable: {
+        $type: "REFERENCE_TABLE",
+        $fields: {
+          date: "DATE",
+        },
       },
-    },
-  } as const;
-
-  describe("Date type", () => {
+    } as const;
     test("DATE accepts TODAY()", () => {
       const { field } = createBuilder(defs);
       expect(field("date").eq(functions.TODAY()).toQuery()).toBe(`date = TODAY()`);
+      expect(field("date").gt(functions.TODAY()).toQuery()).toBe(`date > TODAY()`);
     });
 
     test("DATE doesn't accept LOGINUSER()", () => {
       const { field } = createBuilder(defs);
       // @ts-expect-error
       field("date").eq(functions.LOGINUSER());
+      // @ts-expect-error
+      field("date").gt(functions.LOGINUSER());
+    });
+
+    test("DATE doesn't accept NOW()", () => {
+      const { field } = createBuilder(defs);
+      // @ts-expect-error
+      field("date").eq(functions.NOW());
+    });
+
+    test("DATE chains to TODAY()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("date").eq().TODAY().toQuery()).toBe(`date = TODAY()`);
+      expect(field("date").gt().TODAY().toQuery()).toBe(`date > TODAY()`);
+    });
+
+    test("DATE doesn't chain to LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      expect(() => {
+        // @ts-expect-error
+        field("date").eq().LOGINUSER();
+      }).toThrow();
+      expect(() => {
+        // @ts-expect-error
+        field("date").gt().LOGINUSER();
+      }).toThrow();
+    });
+
+    test("DATE doesn't chain to NOW()", () => {
+      const { field } = createBuilder(defs);
+      expect(() => {
+        // @ts-expect-error
+        field("date").eq().NOW();
+      }).toThrow();
     });
 
     test("DATE in a reference table accepts TODAY()", () => {
@@ -449,13 +480,133 @@ describe("functions", () => {
       expect(field("reftable.date").in(functions.TODAY()).toQuery()).toBe(
         `reftable.date in (TODAY())`
       );
+      expect(field("reftable.date").gt(functions.TODAY()).toQuery()).toBe(
+        `reftable.date > TODAY()`
+      );
     });
 
     test("DATE in a reference table doesn't accept LOGINUSER()", () => {
       const { field } = createBuilder(defs);
       // @ts-expect-error
       field("reftable.date").in(functions.LOGINUSER());
+      // @ts-expect-error
+      field("reftable.date").gt(functions.LOGINUSER());
     });
+
+    test("DATE in a reference table doesn't accept NOW()", () => {
+      const { field } = createBuilder(defs);
+      // @ts-expect-error
+      field("reftable.date").in(functions.NOW());
+    });
+
+    test("DATE in a reference table chains to TODAY()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("reftable.date").in().TODAY().toQuery()).toBe(`reftable.date in (TODAY())`);
+      expect(field("reftable.date").gt().TODAY().toQuery()).toBe(`reftable.date > TODAY()`);
+    });
+
+    test("DATE in a reference table doesn't chain to LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      expect(() => {
+        // @ts-expect-error
+        field("reftable.date").in().LOGINUSER();
+      }).toThrow();
+    });
+
+    test("DATE in a reference table doesn't chain to NOW()", () => {
+      const { field } = createBuilder(defs);
+      expect(() => {
+        // @ts-expect-error
+        field("reftable.date").in().NOW();
+      }).toThrow();
+    });
+  });
+
+  describe("DATETIME field", () => {
+    const defs = {
+      datetime: "DATETIME",
+      ref: {
+        $type: "REFERENCE_TABLE",
+        $fields: {
+          datetime: "DATETIME",
+        },
+      },
+    } as const;
+    test("DATETIME accepts TODAY()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("datetime").eq(functions.TODAY()).toQuery()).toBe(`datetime = TODAY()`);
+    });
+
+    test("DATETIME accepts NOW()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("datetime").eq(functions.NOW()).toQuery()).toBe(`datetime = NOW()`);
+    });
+
+    test("DATETIME doesn't accept LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      // @ts-expect-error
+      field("datetime").eq(functions.LOGINUSER());
+    });
+
+    test("DATETIME chains to TODAY()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("datetime").eq().TODAY().toQuery()).toBe(`datetime = TODAY()`);
+    });
+
+    test("DATETIME chains to NOW()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("datetime").eq().NOW().toQuery()).toBe(`datetime = NOW()`);
+    });
+
+    test("DATETIME doesn't chain to LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      expect(() => {
+        // @ts-expect-error
+        field("datetime").eq().LOGINUSER();
+      }).toThrow();
+    });
+
+    test("DATETIME in a reference table accepts TODAY()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("ref.datetime").in(functions.TODAY()).toQuery()).toBe(
+        `ref.datetime in (TODAY())`
+      );
+    });
+
+    test("DATETIME in a reference table accepts NOW()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("ref.datetime").in(functions.NOW()).toQuery()).toBe(`ref.datetime in (NOW())`);
+    });
+
+    test("DATETIME in a reference table doesn't accept LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      // @ts-expect-error
+      field("ref.datetime").in(functions.LOGINUSER());
+    });
+
+    test("DATETIME in a reference table chains to TODAY()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("ref.datetime").in().TODAY().toQuery()).toBe(`ref.datetime in (TODAY())`);
+    });
+
+    test("DATETIME in a reference table chains to NOW()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("ref.datetime").in().NOW().toQuery()).toBe(`ref.datetime in (NOW())`);
+    });
+
+    test("DATETIME in a reference table doesn't chain to LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      expect(() => {
+        // @ts-expect-error
+        field("ref.datetime").in().LOGINUSER();
+      }).toThrow();
+    });
+  });
+
+  describe("USER_SELECT field", () => {
+    const defs = {
+      user: "USER_SELECT",
+    } as const;
 
     test("USER_SELECT accepts LOGINUSER()", () => {
       const { field } = createBuilder(defs);
@@ -467,9 +618,34 @@ describe("functions", () => {
       // @ts-expect-error
       field("user").in(functions.TODAY());
     });
-    test("ORGANIZATION_SELECT accepts LOGINUSER()", () => {
+
+    test("USER_SELECT chains to LOGINUSER()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("user").in().LOGINUSER().toQuery()).toBe(`user in (LOGINUSER())`);
+    });
+
+    test("USER_SELECT doesn't chain to TODAY()", () => {
+      const { field } = createBuilder(defs);
+      expect(() => {
+        // @ts-expect-error
+        field("user").in().TODAY();
+      }).toThrow();
+    });
+  });
+  describe("ORGANIZATION_SELECT field", () => {
+    const defs = {
+      org: "ORGANIZATION_SELECT",
+    } as const;
+
+    test("ORGANIZATION_SELECT accepts PRIMARY_ORGANIZATION()", () => {
       const { field } = createBuilder(defs);
       expect(field("org").in(functions.PRIMARY_ORGANIZATION()).toQuery()).toBe(
+        `org in (PRIMARY_ORGANIZATION())`
+      );
+    });
+    test("ORGANIZATION_SELECT chains to PRIMARY_ORGANIZATION()", () => {
+      const { field } = createBuilder(defs);
+      expect(field("org").in().PRIMARY_ORGANIZATION().toQuery()).toBe(
         `org in (PRIMARY_ORGANIZATION())`
       );
     });

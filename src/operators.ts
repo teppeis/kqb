@@ -1,36 +1,74 @@
+import fromEntries from "object.fromentries";
 import { InCondition, SingleCondition } from "./conditions";
+import * as funcs from "./functions";
 import type {
   AnyFunctions,
   DateFunctions,
-  DatetimeFunctions,
+  DateTimeFunctions,
+  Day,
+  FromTodayUnit,
   OrganizationFunctions,
+  QueryFunctionNames,
   UserFunctions,
+} from "./functions-internal";
+import {
+  DateFunctionNames,
+  DateTimeFunctionNames,
+  UserFunctionNames,
+  OrganizationFunctionNames,
 } from "./functions-internal";
 
 type Class<ConstructorArgs extends any[], InstanceType> = {
   new (...args: ConstructorArgs): InstanceType;
 };
 
+type OperatorBaseConstructorArgs<Q extends QueryFunctionNames = QueryFunctionNames> = [
+  fieldCode: string,
+  queryFunctionNames: readonly Q[] | undefined
+];
+
 function mixin<
-  ConstructorArgs extends any[],
-  BaseInstance,
-  MixinInstance1 extends BaseInstance,
-  MixinInstance2 extends BaseInstance = BaseInstance,
-  MixinInstance3 extends BaseInstance = BaseInstance,
-  MixinInstance4 extends BaseInstance = BaseInstance
+  MixinInstance1 extends OperatorBase,
+  MixinInstance2 extends OperatorBase = OperatorBase,
+  MixinInstance3 extends OperatorBase = OperatorBase,
+  MixinInstance4 extends OperatorBase = OperatorBase
 >(
-  Base: Class<ConstructorArgs, BaseInstance>,
-  Mixin1: Class<ConstructorArgs, MixinInstance1>,
-  Mixin2?: Class<ConstructorArgs, MixinInstance2>,
-  Mixin3?: Class<ConstructorArgs, MixinInstance3>,
-  Mixin4?: Class<ConstructorArgs, MixinInstance4>
+  Mixin1: Class<OperatorBaseConstructorArgs<never>, MixinInstance1>,
+  Mixin2?: Class<OperatorBaseConstructorArgs<never>, MixinInstance2>,
+  Mixin3?: Class<OperatorBaseConstructorArgs<never>, MixinInstance3>,
+  Mixin4?: Class<OperatorBaseConstructorArgs<never>, MixinInstance4>
 ): Class<
-  ConstructorArgs,
-  BaseInstance & MixinInstance1 & MixinInstance2 & MixinInstance3 & MixinInstance4
+  [fieldCode: string],
+  OperatorBase & MixinInstance1 & MixinInstance2 & MixinInstance3 & MixinInstance4
+> {
+  return mixinWithQueryFunctions<
+    never,
+    MixinInstance1,
+    MixinInstance2,
+    MixinInstance3,
+    MixinInstance4
+  >([], Mixin1, Mixin2, Mixin3, Mixin4);
+}
+
+function mixinWithQueryFunctions<
+  Q extends QueryFunctionNames,
+  MixinInstance1 extends OperatorBase,
+  MixinInstance2 extends OperatorBase = OperatorBase,
+  MixinInstance3 extends OperatorBase = OperatorBase,
+  MixinInstance4 extends OperatorBase = OperatorBase
+>(
+  queryFunctionNames: readonly Q[],
+  Mixin1: Class<OperatorBaseConstructorArgs<Q>, MixinInstance1>,
+  Mixin2?: Class<OperatorBaseConstructorArgs<Q>, MixinInstance2>,
+  Mixin3?: Class<OperatorBaseConstructorArgs<Q>, MixinInstance3>,
+  Mixin4?: Class<OperatorBaseConstructorArgs<Q>, MixinInstance4>
+): Class<
+  [fieldCode: string],
+  OperatorBase & MixinInstance1 & MixinInstance2 & MixinInstance3 & MixinInstance4
 > {
   class Mixed {
-    constructor(...args: any) {
-      const base = new Base(...args);
+    constructor(fieldCode: string) {
+      const base = new OperatorBase(fieldCode, queryFunctionNames);
       const Mixins = [Mixin1, Mixin2, Mixin3, Mixin4];
       Mixins.forEach((Mixin) => {
         if (!Mixin) {
@@ -47,55 +85,193 @@ function mixin<
   return Mixed as any;
 }
 
-export class OperatorBase {
-  #field: string;
-  constructor(fieldCode: string) {
+export class OperatorBase<Q extends QueryFunctionNames = QueryFunctionNames> {
+  readonly #field: string;
+  readonly #queryFunctionNames: readonly Q[];
+  constructor(fieldCode: string, queryFunctionNames: readonly Q[] = []) {
     this.#field = fieldCode;
+    this.#queryFunctionNames = queryFunctionNames;
   }
   getField() {
     return this.#field;
   }
+  getQueryFunctionNames() {
+    return this.#queryFunctionNames;
+  }
+  protected singleCondition<Value>(op: string, value: Value) {
+    return new SingleCondition<Value>(this.getField(), op, value);
+  }
+  protected singleConditionWithQueryFunctions<Value>(op: string, value?: Value) {
+    if (value === undefined) {
+      const functions = queryFunctionsSingle(this.getField(), op);
+      return fromEntries(
+        Object.entries(functions).filter(([func]) =>
+          this.getQueryFunctionNames().includes(func as any)
+        )
+      );
+    } else {
+      return this.singleCondition(op, value);
+    }
+  }
+  protected inCondition<Value>(op: "in" | "not in", values: Value[]) {
+    return new InCondition(this.getField(), op, values);
+  }
+  protected inConditionWithQueryFunctions<Value>(op: "in" | "not in", values: Value[]) {
+    if (values.length === 0) {
+      const functions = queryFunctionsIn(this.getField(), op);
+      return fromEntries(
+        Object.entries(functions).filter(([func]) =>
+          this.getQueryFunctionNames().includes(func as any)
+        )
+      );
+    } else {
+      return this.inCondition(op, values);
+    }
+  }
 }
 
-export class EqualOperatorMixin<T> extends OperatorBase {
+function queryFunctionsSingle(field: string, op: string) {
+  return {
+    LOGINUSER: () => new SingleCondition(field, op, funcs.LOGINUSER()),
+    PRIMARY_ORGANIZATION: () => new SingleCondition(field, op, funcs.PRIMARY_ORGANIZATION()),
+    NOW: () => new SingleCondition(field, op, funcs.NOW()),
+    TODAY: () => new SingleCondition(field, op, funcs.TODAY()),
+    YESTERDAY: () => new SingleCondition(field, op, funcs.YESTERDAY()),
+    TOMORROW: () => new SingleCondition(field, op, funcs.TOMORROW()),
+    FROM_TODAY: (num: number, unit: FromTodayUnit) =>
+      new SingleCondition(field, op, funcs.FROM_TODAY(num, unit)),
+    THIS_WEEK: (day?: Day) => new SingleCondition(field, op, funcs.THIS_WEEK(day)),
+    LAST_WEEK: (day?: Day) => new SingleCondition(field, op, funcs.LAST_WEEK(day)),
+    NEXT_WEEK: (day?: Day) => new SingleCondition(field, op, funcs.NEXT_WEEK(day)),
+    THIS_MONTH: (date?: "LAST" | number) => new SingleCondition(field, op, funcs.THIS_MONTH(date)),
+    LAST_MONTH: (date?: "LAST" | number) => new SingleCondition(field, op, funcs.LAST_MONTH(date)),
+    NEXT_MONTH: (date?: "LAST" | number) => new SingleCondition(field, op, funcs.NEXT_MONTH(date)),
+    THIS_YEAR: () => new SingleCondition(field, op, funcs.THIS_YEAR()),
+    LAST_YEAR: () => new SingleCondition(field, op, funcs.LAST_YEAR()),
+    NEXT_YEAR: () => new SingleCondition(field, op, funcs.NEXT_YEAR()),
+  } as const;
+}
+
+function queryFunctionsIn(field: string, op: "in" | "not in") {
+  return {
+    LOGINUSER: () => new InCondition(field, op, [funcs.LOGINUSER()]),
+    PRIMARY_ORGANIZATION: () => new InCondition(field, op, [funcs.PRIMARY_ORGANIZATION()]),
+    NOW: () => new InCondition(field, op, [funcs.NOW()]),
+    TODAY: () => new InCondition(field, op, [funcs.TODAY()]),
+    YESTERDAY: () => new InCondition(field, op, [funcs.YESTERDAY()]),
+    TOMORROW: () => new InCondition(field, op, [funcs.TOMORROW()]),
+    FROM_TODAY: (num: number, unit: FromTodayUnit) =>
+      new InCondition(field, op, [funcs.FROM_TODAY(num, unit)]),
+    THIS_WEEK: (day?: Day) => new InCondition(field, op, [funcs.THIS_WEEK(day)]),
+    LAST_WEEK: (day?: Day) => new InCondition(field, op, [funcs.LAST_WEEK(day)]),
+    NEXT_WEEK: (day?: Day) => new InCondition(field, op, [funcs.NEXT_WEEK(day)]),
+    THIS_MONTH: (date?: "LAST" | number) => new InCondition(field, op, [funcs.THIS_MONTH(date)]),
+    LAST_MONTH: (date?: "LAST" | number) => new InCondition(field, op, [funcs.LAST_MONTH(date)]),
+    NEXT_MONTH: (date?: "LAST" | number) => new InCondition(field, op, [funcs.NEXT_MONTH(date)]),
+    THIS_YEAR: () => new InCondition(field, op, [funcs.THIS_YEAR()]),
+    LAST_YEAR: () => new InCondition(field, op, [funcs.LAST_YEAR()]),
+    NEXT_YEAR: () => new InCondition(field, op, [funcs.NEXT_YEAR()]),
+  } as const;
+}
+
+export class EqualOperatorMixin<Value> extends OperatorBase {
   /**
    * `=` operator
    */
-  eq(value: T) {
-    return new SingleCondition(this.getField(), "=", value);
+  eq(value: Value) {
+    return this.singleCondition("=", value);
   }
   /**
    * `!=` operator
    */
-  notEq(value: T) {
-    return new SingleCondition(this.getField(), "!=", value);
+  notEq(value: Value) {
+    return this.singleCondition("!=", value);
   }
 }
 
-export class InequalOperatorMixin<T> extends OperatorBase {
+export class EqualOperatorMixinWithFunction<
+  Value,
+  Q extends QueryFunctionNames
+> extends OperatorBase<Q> {
+  /**
+   * `=` operator
+   */
+  eq(): Pick<ReturnType<typeof queryFunctionsSingle>, Q>;
+  eq(value: Value): SingleCondition<Value>;
+  eq(value?: Value) {
+    return this.singleConditionWithQueryFunctions("=", value);
+  }
+  /**
+   * `!=` operator
+   */
+  notEq(): Pick<ReturnType<typeof queryFunctionsSingle>, Q>;
+  notEq(value: Value): SingleCondition<Value>;
+  notEq(value?: Value) {
+    return this.singleConditionWithQueryFunctions("!=", value);
+  }
+}
+
+export class InequalOperatorMixin<Value> extends OperatorBase {
   /**
    * `>` operator
    */
-  gt(value: T) {
-    return new SingleCondition(this.getField(), ">", value);
+  gt(value: Value) {
+    return this.singleCondition(">", value);
   }
   /**
    * `<` operator
    */
-  lt(value: T) {
-    return new SingleCondition(this.getField(), "<", value);
+  lt(value: Value) {
+    return this.singleCondition("<", value);
   }
   /**
    * `>=` operator
    */
-  gtOrEq(value: T) {
-    return new SingleCondition(this.getField(), ">=", value);
+  gtOrEq(value: Value) {
+    return this.singleCondition(">=", value);
   }
   /**
    * `<=` operator
    */
-  ltOrEq(value: T) {
-    return new SingleCondition(this.getField(), "<=", value);
+  ltOrEq(value: Value) {
+    return this.singleCondition("<=", value);
+  }
+}
+export class InequalOperatorMixinWithFunction<
+  Value,
+  Q extends QueryFunctionNames
+> extends OperatorBase<Q> {
+  /**
+   * `>` operator
+   */
+  gt(): Pick<ReturnType<typeof queryFunctionsSingle>, Q>;
+  gt(value: Value): SingleCondition<Value>;
+  gt(value?: Value) {
+    return this.singleConditionWithQueryFunctions(">", value);
+  }
+  /**
+   * `<` operator
+   */
+  lt(): Pick<ReturnType<typeof queryFunctionsSingle>, Q>;
+  lt(value: Value): SingleCondition<Value>;
+  lt(value?: Value) {
+    return this.singleConditionWithQueryFunctions("<", value);
+  }
+  /**
+   * `>=` operator
+   */
+  gtOrEq(): Pick<ReturnType<typeof queryFunctionsSingle>, Q>;
+  gtOrEq(value: Value): SingleCondition<Value>;
+  gtOrEq(value?: Value) {
+    return this.singleConditionWithQueryFunctions(">=", value);
+  }
+  /**
+   * `<=` operator
+   */
+  ltOrEq(): Pick<ReturnType<typeof queryFunctionsSingle>, Q>;
+  ltOrEq(value: Value): SingleCondition<Value>;
+  ltOrEq(value?: Value) {
+    return this.singleConditionWithQueryFunctions("<=", value);
   }
 }
 
@@ -104,130 +280,158 @@ export class LikeOperatorMixin extends OperatorBase {
    * `like` operator
    */
   like(value: string) {
-    return new SingleCondition(this.getField(), "like", value);
+    return this.singleCondition("like", value);
   }
   /**
    * `not like` operator
    */
   notLike(value: string) {
-    return new SingleCondition(this.getField(), "not like", value);
+    return this.singleCondition("not like", value);
   }
 }
-
-export class InOperatorMixin<T> extends OperatorBase {
+export class InOperatorMixin<Value> extends OperatorBase {
   /**
    * `in` operator
    */
-  in(value: T, ...values: T[]) {
+  in(value: Value, ...values: Value[]) {
     return new InCondition(this.getField(), "in", [value, ...values]);
   }
   /**
    * not `in` operator
    */
-  notIn(value: T, ...values: T[]) {
+  notIn(value: Value, ...values: Value[]) {
     return new InCondition(this.getField(), "not in", [value, ...values]);
   }
 }
 
+export class InOperatorMixinWithFunction<
+  Value,
+  Q extends QueryFunctionNames
+> extends OperatorBase<Q> {
+  /**
+   * `in` operator
+   */
+  in(): Pick<ReturnType<typeof queryFunctionsIn>, Q>;
+  in(value: Value, ...values: Value[]): InCondition<Value>;
+  in(...values: Value[]) {
+    return this.inConditionWithQueryFunctions("in", values);
+  }
+  /**
+   * not `in` operator
+   */
+  notIn(): Pick<ReturnType<typeof queryFunctionsIn>, Q>;
+  notIn(value: Value, ...values: Value[]): InCondition<Value>;
+  notIn(...values: Value[]) {
+    return this.inConditionWithQueryFunctions("not in", values);
+  }
+}
+
 const NumericOperator = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
   EqualOperatorMixin<string | number>,
   InequalOperatorMixin<string | number>,
   InOperatorMixin<string | number>
->(OperatorBase, EqualOperatorMixin, InequalOperatorMixin, InOperatorMixin);
+>(EqualOperatorMixin, InequalOperatorMixin, InOperatorMixin);
 
 const NumericOperatorForTable = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
   InequalOperatorMixin<string | number>,
   InOperatorMixin<string | number>
->(OperatorBase, InequalOperatorMixin, InOperatorMixin);
+>(InequalOperatorMixin, InOperatorMixin);
 
 const NumericOperators = [NumericOperator, NumericOperatorForTable] as const;
 
 const StringOperator = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
   EqualOperatorMixin<string>,
   InOperatorMixin<string>,
   LikeOperatorMixin
->(OperatorBase, EqualOperatorMixin, InOperatorMixin, LikeOperatorMixin);
+>(EqualOperatorMixin, InOperatorMixin, LikeOperatorMixin);
 
-const StringOperatorForTable = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  InOperatorMixin<string>,
+const StringOperatorForTable = mixin<InOperatorMixin<string>, LikeOperatorMixin>(
+  InOperatorMixin,
   LikeOperatorMixin
->(OperatorBase, InOperatorMixin, LikeOperatorMixin);
+);
 
 const StringOperators = [StringOperator, StringOperatorForTable] as const;
 
-const TextOperator = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  LikeOperatorMixin
->(OperatorBase, LikeOperatorMixin);
-
+const TextOperator = mixin<LikeOperatorMixin>(LikeOperatorMixin);
 const TextOperators = [TextOperator, TextOperator] as const;
 
 function createSelectionOperator<T>() {
-  const SelectionOperator = mixin<
-    ConstructorParameters<typeof OperatorBase>,
-    OperatorBase,
-    InOperatorMixin<T>
-  >(OperatorBase, InOperatorMixin);
+  const SelectionOperator = mixin<InOperatorMixin<T>>(InOperatorMixin);
   return [SelectionOperator, SelectionOperator] as const;
 }
 const SelectionOperators = createSelectionOperator<string>();
-const UserOperators = createSelectionOperator<string | UserFunctions>();
-const OrganizaionOperators = createSelectionOperator<string | OrganizationFunctions>();
 
-const StatusOperator = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  EqualOperatorMixin<string>,
-  InOperatorMixin<string>
->(OperatorBase, EqualOperatorMixin, InOperatorMixin);
+function createSelectionOperatorWithFunction<T, Q extends QueryFunctionNames>(
+  queryFunctionNames: readonly Q[]
+) {
+  const SelectionOperator = mixinWithQueryFunctions<Q, InOperatorMixinWithFunction<T, Q>>(
+    queryFunctionNames,
+    InOperatorMixinWithFunction
+  );
+  return [SelectionOperator, SelectionOperator] as const;
+}
+const UserOperators = createSelectionOperatorWithFunction<
+  string | UserFunctions,
+  UserFunctionNames
+>(UserFunctionNames);
+const OrganizaionOperators = createSelectionOperatorWithFunction<
+  string | OrganizationFunctions,
+  OrganizationFunctionNames
+>(OrganizationFunctionNames);
+
+const StatusOperator = mixin<EqualOperatorMixin<string>, InOperatorMixin<string>>(
+  EqualOperatorMixin,
+  InOperatorMixin
+);
 
 // NOTE: not in use
-const StatusOperatorForTable = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
-  InOperatorMixin<string>
->(OperatorBase, InOperatorMixin);
+const StatusOperatorForTable = mixin<InOperatorMixin<string>>(InOperatorMixin);
 
 const StatusOperators = [StatusOperator, StatusOperatorForTable] as const;
 
-function createDateTimeOperator<T>() {
-  const DateTimeOperator = mixin<
-    ConstructorParameters<typeof OperatorBase>,
-    OperatorBase,
-    EqualOperatorMixin<T>,
-    InequalOperatorMixin<T>
-  >(OperatorBase, EqualOperatorMixin, InequalOperatorMixin);
+function createTimeOperator<T>() {
+  const TimeOperator = mixin<EqualOperatorMixin<T>, InequalOperatorMixin<T>>(
+    EqualOperatorMixin,
+    InequalOperatorMixin
+  );
 
-  const DateTimeOperatorForTable = mixin<
-    ConstructorParameters<typeof OperatorBase>,
-    OperatorBase,
-    InOperatorMixin<T>,
-    InequalOperatorMixin<T>
-  >(OperatorBase, InOperatorMixin, InequalOperatorMixin);
+  const TimeOperatorForTable = mixin<InOperatorMixin<T>, InequalOperatorMixin<T>>(
+    InOperatorMixin,
+    InequalOperatorMixin
+  );
+
+  return [TimeOperator, TimeOperatorForTable] as const;
+}
+const TimeOperators = createTimeOperator<string>();
+
+function createDateTimeOperator<T, Q extends QueryFunctionNames>(queryFunctionNames: readonly Q[]) {
+  const DateTimeOperator = mixinWithQueryFunctions<
+    Q,
+    EqualOperatorMixinWithFunction<T, Q>,
+    InequalOperatorMixinWithFunction<T, Q>
+  >(queryFunctionNames, EqualOperatorMixinWithFunction, InequalOperatorMixinWithFunction);
+
+  const DateTimeOperatorForTable = mixinWithQueryFunctions<
+    Q,
+    InOperatorMixinWithFunction<T, Q>,
+    InequalOperatorMixinWithFunction<T, Q>
+  >(queryFunctionNames, InOperatorMixinWithFunction, InequalOperatorMixinWithFunction);
 
   return [DateTimeOperator, DateTimeOperatorForTable] as const;
 }
-const TimeOperators = createDateTimeOperator<string>();
-const DateTimeOperators = createDateTimeOperator<string | DatetimeFunctions>();
-const DateOperators = createDateTimeOperator<string | DateFunctions>();
+const DateTimeOperators = createDateTimeOperator<string | DateTimeFunctions, DateTimeFunctionNames>(
+  DateTimeFunctionNames
+);
+const DateOperators = createDateTimeOperator<string | DateFunctions, DateFunctionNames>(
+  DateFunctionNames
+);
 
 export const AnyOperator = mixin<
-  ConstructorParameters<typeof OperatorBase>,
-  OperatorBase,
   EqualOperatorMixin<string | AnyFunctions>,
   InequalOperatorMixin<string | AnyFunctions>,
   InOperatorMixin<string | AnyFunctions>,
   LikeOperatorMixin
->(OperatorBase, EqualOperatorMixin, InequalOperatorMixin, InOperatorMixin, LikeOperatorMixin);
+>(EqualOperatorMixin, InequalOperatorMixin, InOperatorMixin, LikeOperatorMixin);
 export type AnyOperator = InstanceType<typeof AnyOperator>;
 
 export const FieldTypeOperators = {
