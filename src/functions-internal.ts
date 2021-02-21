@@ -32,17 +32,20 @@ export type DateFunctions = DistributeQueryFunction<DateFunctionName>;
 export type AnyFunctions = DistributeQueryFunction<QueryFunctionName>;
 
 export class QueryFunction<T extends QueryFunctionName> {
-  #name: T;
+  /**
+   * NOTE: make public for nominal type checking with the type parameter
+   */
+  readonly name: T;
   #args: string[];
   /**
    * @param name
    * @param args escaped arguments string
    */
   constructor(name: T, ...args: string[]) {
-    this.#name = name;
+    this.name = name;
     this.#args = args;
   }
   toString(): string {
-    return `${this.#name}(${this.#args.join(", ")})`;
+    return `${this.name}(${this.#args.join(", ")})`;
   }
 }
