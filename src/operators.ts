@@ -251,7 +251,7 @@ export const FieldTypeOperators = {
   RICH_TEXT: TextOperators,
   SINGLE_LINE_TEXT: StringOperators,
   STATUS: StatusOperators,
-  STATUS_ASSIGNEE: SelectionOperators,
+  STATUS_ASSIGNEE: UserOperators,
   TIME: TimeOperators,
   UPDATED_TIME: DateTimeOperators,
   USER_SELECT: UserOperators,
