@@ -10,6 +10,7 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist",
+    "functions.*",
     "!**/__tests__"
   ],
   "scripts": {
