@@ -56,5 +56,12 @@ export class QueryFunction<T extends QueryFunctionNames> {
   }
 }
 
-export type Day = "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "FRIDAY";
+export type Day =
+  | "SUNDAY"
+  | "MONDAY"
+  | "TUESDAY"
+  | "WEDNESDAY"
+  | "THURSDAY"
+  | "FRIDAY"
+  | "SATURDAY";
 export type FromTodayUnit = "DAYS" | "WEEKS" | "MONTHS" | "YEARS";
