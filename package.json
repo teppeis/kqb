@@ -24,7 +24,7 @@
     "prepack": "run-s clean build",
     "test": "run-p -l --aggregate-output lint:* typecheck unit",
     "typecheck": "tsc --noEmit",
-    "unit": "jest"
+    "unit": "jest --coverage"
   },
   "devDependencies": {
     "@types/node": "^12.20.4",
