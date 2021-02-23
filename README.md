@@ -31,18 +31,20 @@ import { createBuilder } from "kqb";
 const fields = {
   name: "SINGLE_LINE_TEXT",
   age: "NUMBER",
+  created: "CREATED_TIME",
 } as const;
 
 const { builder, field } = createBuilder(fields);
 const query = builder
   .where(field("name").eq("foo"))
   .and(field("age").gt(20))
+  .and(field("created").eq().THIS_MONTH())
   .orderBy("age", "desc")
   .limit(100)
   .offset(200)
   .build();
 console.log(query);
-// name = "foo" and age > "20" order by age desc limit 100 offset 200
+// name = "foo" and age > "20" and created = THIS_MONTH() order by age desc limit 100 offset 200
 ```
 
 ## API
@@ -201,7 +203,26 @@ Kintone provides [query functions](https://developer.kintone.io/hc/en-us/article
 created_time = TODAY() and creator in (LOGINUSER())
 ```
 
-To use query functions, import them and specify them in query operators.
+You can use query functions with type-safety fluent method chaining.
+
+```ts
+import { createBuilder } from "kqb";
+
+const fields = {
+  created_time: "CREATED_TIME",
+  creator: "CREATOR",
+} as const;
+
+const { builder, field } = createBuilder(fields);
+const query = builder
+  .where(field("created_time").eq().TODAY())
+  .and(field("creator").in().LOGINUSER())
+  .build();
+console.log(query);
+// created_time = TODAY() and creator in (LOGINUSER())
+```
+
+Also you can import each query function and specify it in a query operator.
 
 ```ts
 import { createBuilder, LOGINUSER, TODAY } from "kqb";
@@ -218,12 +239,6 @@ const query = builder
   .build();
 console.log(query);
 // created_time = TODAY() and creator in (LOGINUSER())
-```
-
-Also you can import all functions as namespace from `kqb/functions`.
-
-```ts
-import * as functions from "kqb/functions";
 ```
 
 All query functions are supported:
