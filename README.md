@@ -6,6 +6,7 @@ Type-safe query builder for [Kintone](https://www.kintone.com)
 ![supported Node.js version][node-version]
 ![supported TypeScript version][ts-version]
 [![ci status][ci-image]][ci-url]
+[![coverage][coverage-image]][coverage-url]
 ![dependency count][deps-count-image]
 ![license][license]
 
@@ -313,3 +314,5 @@ MIT License: Teppei Sato &lt;teppeis@gmail.com&gt;
 [license]: https://badgen.net/npm/license/kqb
 [ci-image]: https://github.com/teppeis/kqb/workflows/ci/badge.svg
 [ci-url]: https://github.com/teppeis/kqb/actions?query=workflow%3Aci
+[coverage-image]: https://badgen.net/codecov/c/github/teppeis/kqb?icon=codecov
+[coverage-url]: https://codecov.io/gh/teppeis/kqb
