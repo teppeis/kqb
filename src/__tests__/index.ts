@@ -171,12 +171,6 @@ describe("Condition", () => {
     expect(field("foo").notLike("bar").toQuery()).toBe(`foo not like "bar"`);
   });
 
-  test("in(): at least one value", () => {
-    const { field } = createBuilder();
-    // @ts-expect-error
-    field("foo").in();
-  });
-
   test("in(): one value", () => {
     const { field } = createBuilder();
     expect(field("foo").in(`b"a"r`).toQuery()).toBe(`foo in ("b\\"a\\"r")`);
@@ -286,6 +280,13 @@ describe("Condition with field definitions", () => {
       const { field } = createBuilder(defs);
       expect(field("age").in(10, 20).toQuery()).toBe(`age in ("10", "20")`);
       expect(field("age").notIn(10, 20).toQuery()).toBe(`age not in ("10", "20")`);
+    });
+
+    test("has in() throwing without no args", () => {
+      const { field } = createBuilder(defs);
+      field("age")
+        // @ts-expect-error
+        .in();
     });
 
     test("doesn't have like() and notLike()", () => {
@@ -418,7 +419,25 @@ describe("or()", () => {
   });
 });
 
-describe("functions", () => {
+describe("query functions", () => {
+  describe("without field definition", () => {
+    test("Any fields accept any functions", () => {
+      const { field } = createBuilder();
+      expect(field("date").eq(functions.TODAY()).toQuery()).toBe(`date = TODAY()`);
+      expect(field("date").eq(functions.LOGINUSER()).toQuery()).toBe(`date = LOGINUSER()`);
+    });
+    test("Any fields chain to any functions", () => {
+      const { field } = createBuilder();
+      expect(field("date").eq().TODAY().toQuery()).toBe(`date = TODAY()`);
+      expect(field("date").eq().LOGINUSER().toQuery()).toBe(`date = LOGINUSER()`);
+    });
+    test("Any operators doesn't return any", () => {
+      const { field } = createBuilder();
+      // @ts-expect-error
+      expect(() => field("date").eq().NOT_EXISTING_METHOD_FOOBAR()).toThrow();
+    });
+  });
+
   describe("DATE field", () => {
     const defs = {
       date: "DATE",

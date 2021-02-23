@@ -20,7 +20,7 @@ export const DateFunctionNames = [
 export type DateFunctionNames = typeof DateFunctionNames[number];
 export const DateTimeFunctionNames = ["NOW", ...DateFunctionNames] as const;
 export type DateTimeFunctionNames = typeof DateTimeFunctionNames[number];
-const QueryFunctionNames = [
+export const QueryFunctionNames = [
   ...UserFunctionNames,
   ...OrganizationFunctionNames,
   ...DateTimeFunctionNames,

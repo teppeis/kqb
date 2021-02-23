@@ -8,7 +8,6 @@ import type {
   Day,
   FromTodayUnit,
   OrganizationFunctions,
-  QueryFunctionNames,
   UserFunctions,
 } from "./functions-internal";
 import {
@@ -16,6 +15,7 @@ import {
   DateTimeFunctionNames,
   UserFunctionNames,
   OrganizationFunctionNames,
+  QueryFunctionNames,
 } from "./functions-internal";
 
 type Class<ConstructorArgs extends any[], InstanceType> = {
@@ -426,12 +426,19 @@ const DateOperators = createDateTimeOperator<string | DateFunctions, DateFunctio
   DateFunctionNames
 );
 
-export const AnyOperator = mixin<
-  EqualOperatorMixin<string | AnyFunctions>,
-  InequalOperatorMixin<string | AnyFunctions>,
-  InOperatorMixin<string | AnyFunctions>,
+export const AnyOperator = mixinWithQueryFunctions<
+  QueryFunctionNames,
+  EqualOperatorMixinWithFunction<string | AnyFunctions, QueryFunctionNames>,
+  InequalOperatorMixinWithFunction<string | AnyFunctions, QueryFunctionNames>,
+  InOperatorMixinWithFunction<string | AnyFunctions, QueryFunctionNames>,
   LikeOperatorMixin
->(EqualOperatorMixin, InequalOperatorMixin, InOperatorMixin, LikeOperatorMixin);
+>(
+  QueryFunctionNames,
+  EqualOperatorMixinWithFunction,
+  InequalOperatorMixinWithFunction,
+  InOperatorMixinWithFunction,
+  LikeOperatorMixin
+);
 export type AnyOperator = InstanceType<typeof AnyOperator>;
 
 export const FieldTypeOperators = {
