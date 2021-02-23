@@ -85,44 +85,34 @@ function mixinWithQueryFunctions<
   return Mixed as any;
 }
 
-export class OperatorBase<Q extends QueryFunctionNames = QueryFunctionNames> {
+class OperatorBase<Q extends QueryFunctionNames = QueryFunctionNames> {
   readonly #field: string;
   readonly #queryFunctionNames: readonly Q[];
   constructor(fieldCode: string, queryFunctionNames: readonly Q[] = []) {
     this.#field = fieldCode;
     this.#queryFunctionNames = queryFunctionNames;
   }
-  getField() {
-    return this.#field;
-  }
-  getQueryFunctionNames() {
-    return this.#queryFunctionNames;
-  }
   protected singleCondition<Value>(op: string, value: Value) {
-    return new SingleCondition<Value>(this.getField(), op, value);
+    return new SingleCondition<Value>(this.#field, op, value);
   }
   protected singleConditionWithQueryFunctions<Value>(op: string, value?: Value) {
     if (value === undefined) {
-      const functions = queryFunctionsSingle(this.getField(), op);
+      const functions = queryFunctionsSingle(this.#field, op);
       return fromEntries(
-        Object.entries(functions).filter(([func]) =>
-          this.getQueryFunctionNames().includes(func as any)
-        )
+        Object.entries(functions).filter(([func]) => this.#queryFunctionNames.includes(func as any))
       );
     } else {
       return this.singleCondition(op, value);
     }
   }
   protected inCondition<Value>(op: "in" | "not in", values: Value[]) {
-    return new InCondition(this.getField(), op, values);
+    return new InCondition(this.#field, op, values);
   }
   protected inConditionWithQueryFunctions<Value>(op: "in" | "not in", values: Value[]) {
     if (values.length === 0) {
-      const functions = queryFunctionsIn(this.getField(), op);
+      const functions = queryFunctionsIn(this.#field, op);
       return fromEntries(
-        Object.entries(functions).filter(([func]) =>
-          this.getQueryFunctionNames().includes(func as any)
-        )
+        Object.entries(functions).filter(([func]) => this.#queryFunctionNames.includes(func as any))
       );
     } else {
       return this.inCondition(op, values);
@@ -294,13 +284,13 @@ export class InOperatorMixin<Value> extends OperatorBase {
    * `in` operator
    */
   in(value: Value, ...values: Value[]) {
-    return new InCondition(this.getField(), "in", [value, ...values]);
+    return this.inCondition("in", [value, ...values]);
   }
   /**
    * not `in` operator
    */
   notIn(value: Value, ...values: Value[]) {
-    return new InCondition(this.getField(), "not in", [value, ...values]);
+    return this.inCondition("not in", [value, ...values]);
   }
 }
 
