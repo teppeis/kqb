@@ -163,7 +163,7 @@ function queryFunctionsIn(field: string, op: "in" | "not in") {
   } as const;
 }
 
-export class EqualOperatorMixin<Value> extends OperatorBase {
+class EqualOperatorMixin<Value> extends OperatorBase {
   /**
    * `=` operator
    */
@@ -178,10 +178,7 @@ export class EqualOperatorMixin<Value> extends OperatorBase {
   }
 }
 
-export class EqualOperatorMixinWithFunction<
-  Value,
-  Q extends QueryFunctionNames
-> extends OperatorBase<Q> {
+class EqualOperatorMixinWithFunction<Value, Q extends QueryFunctionNames> extends OperatorBase<Q> {
   /**
    * `=` operator
    */
@@ -200,7 +197,7 @@ export class EqualOperatorMixinWithFunction<
   }
 }
 
-export class InequalOperatorMixin<Value> extends OperatorBase {
+class InequalOperatorMixin<Value> extends OperatorBase {
   /**
    * `>` operator
    */
@@ -226,7 +223,7 @@ export class InequalOperatorMixin<Value> extends OperatorBase {
     return this.singleCondition("<=", value);
   }
 }
-export class InequalOperatorMixinWithFunction<
+class InequalOperatorMixinWithFunction<
   Value,
   Q extends QueryFunctionNames
 > extends OperatorBase<Q> {
@@ -264,7 +261,7 @@ export class InequalOperatorMixinWithFunction<
   }
 }
 
-export class LikeOperatorMixin extends OperatorBase {
+class LikeOperatorMixin extends OperatorBase {
   /**
    * `like` operator
    */
@@ -278,7 +275,7 @@ export class LikeOperatorMixin extends OperatorBase {
     return this.singleCondition("not like", value);
   }
 }
-export class InOperatorMixin<Value> extends OperatorBase {
+class InOperatorMixin<Value> extends OperatorBase {
   /**
    * `in` operator
    */
@@ -293,10 +290,7 @@ export class InOperatorMixin<Value> extends OperatorBase {
   }
 }
 
-export class InOperatorMixinWithFunction<
-  Value,
-  Q extends QueryFunctionNames
-> extends OperatorBase<Q> {
+class InOperatorMixinWithFunction<Value, Q extends QueryFunctionNames> extends OperatorBase<Q> {
   /**
    * `in` operator
    */
@@ -326,7 +320,7 @@ const NumericOperatorForTable = mixin<
   InOperatorMixin<string | number>
 >(InequalOperatorMixin, InOperatorMixin);
 
-const NumericOperators = [NumericOperator, NumericOperatorForTable] as const;
+export const NumericOperators = [NumericOperator, NumericOperatorForTable] as const;
 
 const StringOperator = mixin<
   EqualOperatorMixin<string>,
@@ -339,16 +333,16 @@ const StringOperatorForTable = mixin<InOperatorMixin<string>, LikeOperatorMixin>
   LikeOperatorMixin
 );
 
-const StringOperators = [StringOperator, StringOperatorForTable] as const;
+export const StringOperators = [StringOperator, StringOperatorForTable] as const;
 
 const TextOperator = mixin<LikeOperatorMixin>(LikeOperatorMixin);
-const TextOperators = [TextOperator, TextOperator] as const;
+export const TextOperators = [TextOperator, TextOperator] as const;
 
 function createSelectionOperator<T>() {
   const SelectionOperator = mixin<InOperatorMixin<T>>(InOperatorMixin);
   return [SelectionOperator, SelectionOperator] as const;
 }
-const SelectionOperators = createSelectionOperator<string>();
+export const SelectionOperators = createSelectionOperator<string>();
 
 function createSelectionOperatorWithFunction<T, Q extends QueryFunctionNames>(
   queryFunctionNames: readonly Q[]
@@ -359,11 +353,11 @@ function createSelectionOperatorWithFunction<T, Q extends QueryFunctionNames>(
   );
   return [SelectionOperator, SelectionOperator] as const;
 }
-const UserOperators = createSelectionOperatorWithFunction<
+export const UserOperators = createSelectionOperatorWithFunction<
   string | UserFunctions,
   UserFunctionNames
 >(UserFunctionNames);
-const OrganizaionOperators = createSelectionOperatorWithFunction<
+export const OrganizaionOperators = createSelectionOperatorWithFunction<
   string | OrganizationFunctions,
   OrganizationFunctionNames
 >(OrganizationFunctionNames);
@@ -376,7 +370,7 @@ const StatusOperator = mixin<EqualOperatorMixin<string>, InOperatorMixin<string>
 // NOTE: not in use
 const StatusOperatorForTable = mixin<InOperatorMixin<string>>(InOperatorMixin);
 
-const StatusOperators = [StatusOperator, StatusOperatorForTable] as const;
+export const StatusOperators = [StatusOperator, StatusOperatorForTable] as const;
 
 function createTimeOperator<T>() {
   const TimeOperator = mixin<EqualOperatorMixin<T>, InequalOperatorMixin<T>>(
@@ -391,7 +385,7 @@ function createTimeOperator<T>() {
 
   return [TimeOperator, TimeOperatorForTable] as const;
 }
-const TimeOperators = createTimeOperator<string>();
+export const TimeOperators = createTimeOperator<string>();
 
 function createDateTimeOperator<T, Q extends QueryFunctionNames>(queryFunctionNames: readonly Q[]) {
   const DateTimeOperator = mixinWithQueryFunctions<
@@ -408,10 +402,11 @@ function createDateTimeOperator<T, Q extends QueryFunctionNames>(queryFunctionNa
 
   return [DateTimeOperator, DateTimeOperatorForTable] as const;
 }
-const DateTimeOperators = createDateTimeOperator<string | DateTimeFunctions, DateTimeFunctionNames>(
+export const DateTimeOperators = createDateTimeOperator<
+  string | DateTimeFunctions,
   DateTimeFunctionNames
-);
-const DateOperators = createDateTimeOperator<string | DateFunctions, DateFunctionNames>(
+>(DateTimeFunctionNames);
+export const DateOperators = createDateTimeOperator<string | DateFunctions, DateFunctionNames>(
   DateFunctionNames
 );
 
