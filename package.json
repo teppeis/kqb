@@ -22,7 +22,7 @@
     "fix:eslint": "npm run lint:eslint -- --fix",
     "fix:prettier": "npm run lint:prettier -- --write",
     "prepack": "run-s clean build",
-    "test": "npm-run-all -l --aggregate-output clean build -p lint:* unit",
+    "test": "run-p -l --aggregate-output lint:* typecheck unit",
     "typecheck": "tsc --noEmit",
     "unit": "jest"
   },
