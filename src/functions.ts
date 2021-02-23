@@ -1,3 +1,4 @@
+import type { Day, FromTodayUnit } from "./functions-internal";
 import { QueryFunction } from "./functions-internal";
 
 export function LOGINUSER() {
@@ -24,7 +25,7 @@ export function TOMORROW() {
   return new QueryFunction("TOMORROW");
 }
 
-export function FROM_TODAY(num: number, unit: "DAYS" | "WEEKS" | "MONTHS" | "YEARS") {
+export function FROM_TODAY(num: number, unit: FromTodayUnit) {
   return new QueryFunction("FROM_TODAY", String(num), unit);
 }
 
@@ -33,9 +34,7 @@ export function FROM_TODAY(num: number, unit: "DAYS" | "WEEKS" | "MONTHS" | "YEA
  *
  * @param day If nothing is specified, it converts to all days in this week.
  */
-export function THIS_WEEK(
-  day?: "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "FRIDAY"
-) {
+export function THIS_WEEK(day?: Day) {
   return new QueryFunction("THIS_WEEK", day ?? "");
 }
 
@@ -44,9 +43,7 @@ export function THIS_WEEK(
  *
  * @param day If nothing is specified, it converts to all days in the last week.
  */
-export function LAST_WEEK(
-  day?: "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "FRIDAY"
-) {
+export function LAST_WEEK(day?: Day) {
   return new QueryFunction("LAST_WEEK", day ?? "");
 }
 
@@ -55,9 +52,7 @@ export function LAST_WEEK(
  *
  * @param day If nothing is specified, it converts to all days in the next week.
  */
-export function NEXT_WEEK(
-  day?: "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "FRIDAY"
-) {
+export function NEXT_WEEK(day?: Day) {
   return new QueryFunction("NEXT_WEEK", day ?? "");
 }
 
