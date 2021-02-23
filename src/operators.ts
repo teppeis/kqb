@@ -1,4 +1,3 @@
-import fromEntries from "object.fromentries";
 import { InCondition, SingleCondition } from "./conditions";
 import * as funcs from "./functions";
 import type {
@@ -13,9 +12,9 @@ import type {
 import {
   DateFunctionNames,
   DateTimeFunctionNames,
-  UserFunctionNames,
   OrganizationFunctionNames,
   QueryFunctionNames,
+  UserFunctionNames,
 } from "./functions-internal";
 
 type Class<ConstructorArgs extends any[], InstanceType> = {
@@ -98,7 +97,7 @@ class OperatorBase<Q extends QueryFunctionNames = QueryFunctionNames> {
   protected singleConditionWithQueryFunctions<Value>(op: string, value?: Value) {
     if (value === undefined) {
       const functions = queryFunctionsSingle(this.#field, op);
-      return fromEntries(
+      return Object.fromEntries(
         Object.entries(functions).filter(([func]) => this.#queryFunctionNames.includes(func as any))
       );
     } else {
@@ -111,7 +110,7 @@ class OperatorBase<Q extends QueryFunctionNames = QueryFunctionNames> {
   protected inConditionWithQueryFunctions<Value>(op: "in" | "not in", values: Value[]) {
     if (values.length === 0) {
       const functions = queryFunctionsIn(this.#field, op);
-      return fromEntries(
+      return Object.fromEntries(
         Object.entries(functions).filter(([func]) => this.#queryFunctionNames.includes(func as any))
       );
     } else {
