@@ -33,10 +33,14 @@ describe("Builder", () => {
     expect(builder.where(eq()).build()).toBe(`foo = "bar"`);
   });
   test("where().and()", () => {
-    expect(builder.where(eq()).and(eq("baz", "qux")).build()).toBe(`foo = "bar" and baz = "qux"`);
+    expect(builder.where(eq()).and(eq("baz", "qux")).build()).toBe(
+      `foo = "bar" and baz = "qux"`
+    );
   });
   test("where().or()", () => {
-    expect(builder.where(eq()).or(eq("baz", "qux")).build()).toBe(`foo = "bar" or baz = "qux"`);
+    expect(builder.where(eq()).or(eq("baz", "qux")).build()).toBe(
+      `foo = "bar" or baz = "qux"`
+    );
   });
   test("where(): nested conditions", () => {
     const { builder, field } = createBuilder();
@@ -51,7 +55,9 @@ describe("Builder", () => {
         )
         .or(field("e1").eq("e2"))
         .build()
-    ).toBe(`(a1 = "a2" and b1 like "b2" and (c1 != "c2" or d1 not like "d2")) or e1 = "e2"`);
+    ).toBe(
+      `(a1 = "a2" and b1 like "b2" and (c1 != "c2" or d1 not like "d2")) or e1 = "e2"`
+    );
   });
 });
 

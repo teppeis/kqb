@@ -240,7 +240,9 @@ describe("OrganizaionOperators", () => {
       ).toThrow();
     });
     test("accepts PRIMARY_ORGANIZATION()", () => {
-      expect(operator.in(PRIMARY_ORGANIZATION()).toQuery()).toBe("foo in (PRIMARY_ORGANIZATION())");
+      expect(operator.in(PRIMARY_ORGANIZATION()).toQuery()).toBe(
+        "foo in (PRIMARY_ORGANIZATION())"
+      );
       expect(operator.in().PRIMARY_ORGANIZATION().toQuery()).toBe(
         "foo in (PRIMARY_ORGANIZATION())"
       );
@@ -369,7 +371,9 @@ describe("DateTimeOperators", () => {
       expect(operator.eq().TODAY().toQuery()).toBe("foo = TODAY()");
       expect(operator.eq().YESTERDAY().toQuery()).toBe("foo = YESTERDAY()");
       expect(operator.eq().TOMORROW().toQuery()).toBe("foo = TOMORROW()");
-      expect(operator.eq().FROM_TODAY(1, "DAYS").toQuery()).toBe("foo = FROM_TODAY(1, DAYS)");
+      expect(operator.eq().FROM_TODAY(1, "DAYS").toQuery()).toBe(
+        "foo = FROM_TODAY(1, DAYS)"
+      );
       expect(operator.eq().LAST_WEEK().toQuery()).toBe("foo = LAST_WEEK()");
       expect(operator.eq().LAST_WEEK("FRIDAY").toQuery()).toBe("foo = LAST_WEEK(FRIDAY)");
       expect(operator.eq().THIS_WEEK().toQuery()).toBe("foo = THIS_WEEK()");
@@ -411,14 +415,20 @@ describe("DateTimeOperators", () => {
       expect(operator.in().TODAY().toQuery()).toBe("foo in (TODAY())");
       expect(operator.in().YESTERDAY().toQuery()).toBe("foo in (YESTERDAY())");
       expect(operator.in().TOMORROW().toQuery()).toBe("foo in (TOMORROW())");
-      expect(operator.in().FROM_TODAY(1, "DAYS").toQuery()).toBe("foo in (FROM_TODAY(1, DAYS))");
+      expect(operator.in().FROM_TODAY(1, "DAYS").toQuery()).toBe(
+        "foo in (FROM_TODAY(1, DAYS))"
+      );
       expect(operator.in().LAST_WEEK().toQuery()).toBe("foo in (LAST_WEEK())");
-      expect(operator.in().LAST_WEEK("FRIDAY").toQuery()).toBe("foo in (LAST_WEEK(FRIDAY))");
+      expect(operator.in().LAST_WEEK("FRIDAY").toQuery()).toBe(
+        "foo in (LAST_WEEK(FRIDAY))"
+      );
       expect(operator.in().THIS_WEEK().toQuery()).toBe("foo in (THIS_WEEK())");
       expect(operator.in().NEXT_WEEK().toQuery()).toBe("foo in (NEXT_WEEK())");
       expect(operator.in().LAST_MONTH().toQuery()).toBe("foo in (LAST_MONTH())");
       expect(operator.in().LAST_MONTH(1).toQuery()).toBe("foo in (LAST_MONTH(1))");
-      expect(operator.in().LAST_MONTH("LAST").toQuery()).toBe("foo in (LAST_MONTH(LAST))");
+      expect(operator.in().LAST_MONTH("LAST").toQuery()).toBe(
+        "foo in (LAST_MONTH(LAST))"
+      );
       expect(operator.in().THIS_MONTH().toQuery()).toBe("foo in (THIS_MONTH())");
       expect(operator.in().NEXT_MONTH().toQuery()).toBe("foo in (NEXT_MONTH())");
       expect(operator.in().LAST_YEAR().toQuery()).toBe("foo in (LAST_YEAR())");

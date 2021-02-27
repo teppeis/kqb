@@ -1,4 +1,9 @@
-import type { FieldDefinitionsTypes, FieldTypes, ReferenceTable, Subtable } from "./builder";
+import type {
+  FieldDefinitionsTypes,
+  FieldTypes,
+  ReferenceTable,
+  Subtable,
+} from "./builder";
 import { Builder } from "./builder";
 import { AnyOperator, FieldTypeOperators } from "./operators";
 import type { KeysByValue, StringKeyOf } from "./type-utils";
@@ -16,7 +21,9 @@ type ConcatTableDotFieldCode<
   T extends FieldDefinitionsTypes,
   TableType extends Subtable | ReferenceTable
 > = {
-  [K in StringKeyOf<T>]: T[K] extends TableType ? `${K}.${StringKeyOf<T[K]["$fields"]>}` : never;
+  [K in StringKeyOf<T>]: T[K] extends TableType
+    ? `${K}.${StringKeyOf<T[K]["$fields"]>}`
+    : never;
 }[StringKeyOf<T>];
 type RefTableFieldCodes<T extends FieldDefinitionsTypes> = ConcatTableDotFieldCode<
   T,
@@ -73,10 +80,14 @@ export function createBuilder<FieldDefs extends FieldDefinitionsTypes>(
     ? FieldTypeOperators[FlattenRefTables<FieldDefs>[FieldCode]][1]
     : never;
 };
-export function createBuilder<FieldDefs extends FieldDefinitionsTypes = any>(fd?: FieldDefs) {
+export function createBuilder<FieldDefs extends FieldDefinitionsTypes = any>(
+  fd?: FieldDefs
+) {
   return {
     builder: new Builder<WithBuiltin<FlattenFields<FieldDefs>>>(),
-    field: <FieldCode extends FlattenFieldCodes<WithBuiltin<FieldDefs>>>(fieldCode: FieldCode) => {
+    field: <FieldCode extends FlattenFieldCodes<WithBuiltin<FieldDefs>>>(
+      fieldCode: FieldCode
+    ) => {
       if (!fd) {
         return new AnyOperator(fieldCode);
       }

@@ -98,7 +98,9 @@ class OperatorBase<Q extends QueryFunctionNames = QueryFunctionNames> {
     if (value === undefined) {
       const functions = queryFunctionsSingle(this.#field, op);
       return Object.fromEntries(
-        Object.entries(functions).filter(([func]) => this.#queryFunctionNames.includes(func as any))
+        Object.entries(functions).filter(([func]) =>
+          this.#queryFunctionNames.includes(func as any)
+        )
       );
     } else {
       return this.singleCondition(op, value);
@@ -111,7 +113,9 @@ class OperatorBase<Q extends QueryFunctionNames = QueryFunctionNames> {
     if (values.length === 0) {
       const functions = queryFunctionsIn(this.#field, op);
       return Object.fromEntries(
-        Object.entries(functions).filter(([func]) => this.#queryFunctionNames.includes(func as any))
+        Object.entries(functions).filter(([func]) =>
+          this.#queryFunctionNames.includes(func as any)
+        )
       );
     } else {
       return this.inCondition(op, values);
@@ -122,7 +126,8 @@ class OperatorBase<Q extends QueryFunctionNames = QueryFunctionNames> {
 function queryFunctionsSingle(field: string, op: string) {
   return {
     LOGINUSER: () => new SingleCondition(field, op, funcs.LOGINUSER()),
-    PRIMARY_ORGANIZATION: () => new SingleCondition(field, op, funcs.PRIMARY_ORGANIZATION()),
+    PRIMARY_ORGANIZATION: () =>
+      new SingleCondition(field, op, funcs.PRIMARY_ORGANIZATION()),
     NOW: () => new SingleCondition(field, op, funcs.NOW()),
     TODAY: () => new SingleCondition(field, op, funcs.TODAY()),
     YESTERDAY: () => new SingleCondition(field, op, funcs.YESTERDAY()),
@@ -132,9 +137,12 @@ function queryFunctionsSingle(field: string, op: string) {
     THIS_WEEK: (day?: Day) => new SingleCondition(field, op, funcs.THIS_WEEK(day)),
     LAST_WEEK: (day?: Day) => new SingleCondition(field, op, funcs.LAST_WEEK(day)),
     NEXT_WEEK: (day?: Day) => new SingleCondition(field, op, funcs.NEXT_WEEK(day)),
-    THIS_MONTH: (date?: "LAST" | number) => new SingleCondition(field, op, funcs.THIS_MONTH(date)),
-    LAST_MONTH: (date?: "LAST" | number) => new SingleCondition(field, op, funcs.LAST_MONTH(date)),
-    NEXT_MONTH: (date?: "LAST" | number) => new SingleCondition(field, op, funcs.NEXT_MONTH(date)),
+    THIS_MONTH: (date?: "LAST" | number) =>
+      new SingleCondition(field, op, funcs.THIS_MONTH(date)),
+    LAST_MONTH: (date?: "LAST" | number) =>
+      new SingleCondition(field, op, funcs.LAST_MONTH(date)),
+    NEXT_MONTH: (date?: "LAST" | number) =>
+      new SingleCondition(field, op, funcs.NEXT_MONTH(date)),
     THIS_YEAR: () => new SingleCondition(field, op, funcs.THIS_YEAR()),
     LAST_YEAR: () => new SingleCondition(field, op, funcs.LAST_YEAR()),
     NEXT_YEAR: () => new SingleCondition(field, op, funcs.NEXT_YEAR()),
@@ -144,7 +152,8 @@ function queryFunctionsSingle(field: string, op: string) {
 function queryFunctionsIn(field: string, op: "in" | "not in") {
   return {
     LOGINUSER: () => new InCondition(field, op, [funcs.LOGINUSER()]),
-    PRIMARY_ORGANIZATION: () => new InCondition(field, op, [funcs.PRIMARY_ORGANIZATION()]),
+    PRIMARY_ORGANIZATION: () =>
+      new InCondition(field, op, [funcs.PRIMARY_ORGANIZATION()]),
     NOW: () => new InCondition(field, op, [funcs.NOW()]),
     TODAY: () => new InCondition(field, op, [funcs.TODAY()]),
     YESTERDAY: () => new InCondition(field, op, [funcs.YESTERDAY()]),
@@ -154,9 +163,12 @@ function queryFunctionsIn(field: string, op: "in" | "not in") {
     THIS_WEEK: (day?: Day) => new InCondition(field, op, [funcs.THIS_WEEK(day)]),
     LAST_WEEK: (day?: Day) => new InCondition(field, op, [funcs.LAST_WEEK(day)]),
     NEXT_WEEK: (day?: Day) => new InCondition(field, op, [funcs.NEXT_WEEK(day)]),
-    THIS_MONTH: (date?: "LAST" | number) => new InCondition(field, op, [funcs.THIS_MONTH(date)]),
-    LAST_MONTH: (date?: "LAST" | number) => new InCondition(field, op, [funcs.LAST_MONTH(date)]),
-    NEXT_MONTH: (date?: "LAST" | number) => new InCondition(field, op, [funcs.NEXT_MONTH(date)]),
+    THIS_MONTH: (date?: "LAST" | number) =>
+      new InCondition(field, op, [funcs.THIS_MONTH(date)]),
+    LAST_MONTH: (date?: "LAST" | number) =>
+      new InCondition(field, op, [funcs.LAST_MONTH(date)]),
+    NEXT_MONTH: (date?: "LAST" | number) =>
+      new InCondition(field, op, [funcs.NEXT_MONTH(date)]),
     THIS_YEAR: () => new InCondition(field, op, [funcs.THIS_YEAR()]),
     LAST_YEAR: () => new InCondition(field, op, [funcs.LAST_YEAR()]),
     NEXT_YEAR: () => new InCondition(field, op, [funcs.NEXT_YEAR()]),
@@ -178,7 +190,10 @@ class EqualOperatorMixin<Value> extends OperatorBase {
   }
 }
 
-class EqualOperatorMixinWithFunction<Value, Q extends QueryFunctionNames> extends OperatorBase<Q> {
+class EqualOperatorMixinWithFunction<
+  Value,
+  Q extends QueryFunctionNames
+> extends OperatorBase<Q> {
   /**
    * `=` operator
    */
@@ -290,7 +305,10 @@ class InOperatorMixin<Value> extends OperatorBase {
   }
 }
 
-class InOperatorMixinWithFunction<Value, Q extends QueryFunctionNames> extends OperatorBase<Q> {
+class InOperatorMixinWithFunction<
+  Value,
+  Q extends QueryFunctionNames
+> extends OperatorBase<Q> {
   /**
    * `in` operator
    */
@@ -387,7 +405,9 @@ function createTimeOperator<T>() {
 }
 export const TimeOperators = createTimeOperator<string>();
 
-function createDateTimeOperator<T, Q extends QueryFunctionNames>(queryFunctionNames: readonly Q[]) {
+function createDateTimeOperator<T, Q extends QueryFunctionNames>(
+  queryFunctionNames: readonly Q[]
+) {
   const DateTimeOperator = mixinWithQueryFunctions<
     Q,
     EqualOperatorMixinWithFunction<T, Q>,
@@ -406,9 +426,10 @@ export const DateTimeOperators = createDateTimeOperator<
   string | DateTimeFunctions,
   DateTimeFunctionNames
 >(DateTimeFunctionNames);
-export const DateOperators = createDateTimeOperator<string | DateFunctions, DateFunctionNames>(
+export const DateOperators = createDateTimeOperator<
+  string | DateFunctions,
   DateFunctionNames
-);
+>(DateFunctionNames);
 
 export const AnyOperator = mixinWithQueryFunctions<
   QueryFunctionNames,

@@ -28,7 +28,12 @@ describe("createBuilder", () => {
     test("returned builder and field work", () => {
       const { builder, field } = createBuilder();
       expect(
-        builder.where(field("foo").eq("bar")).orderBy("baz", "asc").limit(100).offset(200).build()
+        builder
+          .where(field("foo").eq("bar"))
+          .orderBy("baz", "asc")
+          .limit(100)
+          .offset(200)
+          .build()
       ).toBe('foo = "bar" order by baz asc limit 100 offset 200');
     });
   });
