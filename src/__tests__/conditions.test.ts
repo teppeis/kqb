@@ -64,7 +64,9 @@ describe("and()", () => {
     expect(and(eq()).toQuery()).toBe(`(foo = "bar")`);
   });
   test("two conditions", () => {
-    expect(and(eq("foo", "bar"), eq("baz", "qux")).toQuery()).toBe(`(foo = "bar" and baz = "qux")`);
+    expect(and(eq("foo", "bar"), eq("baz", "qux")).toQuery()).toBe(
+      `(foo = "bar" and baz = "qux")`
+    );
   });
 });
 
@@ -77,6 +79,8 @@ describe("or()", () => {
     expect(or(eq("foo", "bar")).toQuery()).toBe(`(foo = "bar")`);
   });
   test("two condition", () => {
-    expect(or(eq("foo", "bar"), eq("baz", "qux")).toQuery()).toBe(`(foo = "bar" or baz = "qux")`);
+    expect(or(eq("foo", "bar"), eq("baz", "qux")).toQuery()).toBe(
+      `(foo = "bar" or baz = "qux")`
+    );
   });
 });

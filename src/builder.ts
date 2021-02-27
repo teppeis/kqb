@@ -3,8 +3,14 @@ import type { FieldTypeOperators } from "./operators";
 
 export type FieldTypes = keyof FieldTypeOperators;
 export type Subtable = { $type: "SUBTABLE"; $fields: Record<string, FieldTypes> };
-export type ReferenceTable = { $type: "REFERENCE_TABLE"; $fields: Record<string, FieldTypes> };
-export type FieldDefinitionsTypes = Record<string, FieldTypes | Subtable | ReferenceTable>;
+export type ReferenceTable = {
+  $type: "REFERENCE_TABLE";
+  $fields: Record<string, FieldTypes>;
+};
+export type FieldDefinitionsTypes = Record<
+  string,
+  FieldTypes | Subtable | ReferenceTable
+>;
 
 type SortableFieldTypes =
   | "RECORD_NUMBER"
@@ -51,7 +57,9 @@ export class Builder<FieldDefs extends FieldDefinitionsTypes> {
     }
     if (this.#orderByList.length > 0) {
       buf.push("order by");
-      buf.push(this.#orderByList.map(([field, direction]) => `${field} ${direction}`).join(", "));
+      buf.push(
+        this.#orderByList.map(([field, direction]) => `${field} ${direction}`).join(", ")
+      );
     }
     if (this.#limit != null) {
       buf.push(`limit ${this.#limit}`);

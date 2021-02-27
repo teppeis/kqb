@@ -1,4 +1,6 @@
-type AssertEqual<T, U> = (<G>() => G extends T ? 1 : 2) extends <G>() => G extends U ? 1 : 2
+type AssertEqual<T, U> = (<G>() => G extends T ? 1 : 2) extends <G>() => G extends U
+  ? 1
+  : 2
   ? T
   : never;
 export function assertExactType<T, U>(draft: T & AssertEqual<T, U>, expected?: U): void {}
