@@ -13,6 +13,12 @@ describe("convertFieldsJsonToDefs", () => {
     const defs = convertFieldsJsonToDefs(fields);
     assertExactType(defs.$id, "RECORD_NUMBER" as const);
   });
+  test("convert subtables", () => {
+    const defs = convertFieldsJsonToDefs(fields);
+    assertExactType(defs.Table.$type, "SUBTABLE" as const);
+    assertExactType(defs.Table.$fields.Text_0, "SINGLE_LINE_TEXT" as const);
+    assertExactType(defs.Table.$fields.Number_1, "NUMBER" as const);
+  });
   test("doesn't convert reference tables (TODO)", () => {
     const defs = convertFieldsJsonToDefs(fields);
     expect(

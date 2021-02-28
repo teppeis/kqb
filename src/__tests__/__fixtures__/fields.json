@@ -1,5 +1,5 @@
 {
-  "revision": "7",
+  "revision": "8",
   "properties": {
     "Time": {
       "type": "TIME",
@@ -188,6 +188,42 @@
       "code": "Assignee",
       "label": "Assignee",
       "enabled": true
+    },
+    "Table": {
+      "type": "SUBTABLE",
+      "code": "Table",
+      "noLabel": true,
+      "label": "Table",
+      "fields": {
+        "Text_0": {
+          "type": "SINGLE_LINE_TEXT",
+          "code": "Text_0",
+          "label": "Text",
+          "noLabel": false,
+          "required": false,
+          "minLength": "",
+          "maxLength": "",
+          "expression": "",
+          "hideExpression": false,
+          "unique": false,
+          "defaultValue": ""
+        },
+        "Number_1": {
+          "type": "NUMBER",
+          "code": "Number_1",
+          "label": "Number",
+          "noLabel": false,
+          "required": false,
+          "minValue": "",
+          "maxValue": "",
+          "digit": false,
+          "unique": false,
+          "defaultValue": "",
+          "displayScale": "",
+          "unit": "",
+          "unitPosition": "BEFORE"
+        }
+      }
     },
     "Categories": {
       "type": "CATEGORY",
