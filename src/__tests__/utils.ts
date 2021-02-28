@@ -3,7 +3,11 @@ type AssertEqual<T, U> = (<G>() => G extends T ? 1 : 2) extends <G>() => G exten
   : 2
   ? T
   : never;
-export function assertExactType<T, U>(draft: T & AssertEqual<T, U>, expected?: U): void {}
+export function assertExactType<T, U>(draft: T & AssertEqual<T, U>, expected?: U): void {
+  if (expected) {
+    expect(draft).toBe(expected);
+  }
+}
 
 /**
  * Returns a dummy condition for testing
