@@ -34,7 +34,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "ts-jest": "^26.5.2",
+    "ts-jest": "^26.5.3",
     "typescript": "^4.2.2"
   },
   "homepage": "https://github.com/teppeis/kqb",
