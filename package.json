@@ -27,6 +27,7 @@
     "unit": "jest --coverage"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.20",
     "@types/node": "^12.20.4",
     "eslint": "^7.21.0",
     "eslint-config-teppeis": "^13.1.5",
@@ -34,7 +35,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
-    "ts-jest": "^26.5.2",
+    "ts-jest": "^26.5.3",
     "typescript": "^4.2.2"
   },
   "homepage": "https://github.com/teppeis/kqb",
