@@ -25,3 +25,5 @@ jobs:
       - run: npm test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
+      - run: npm install typescript@4.1
+      - run: npm test
