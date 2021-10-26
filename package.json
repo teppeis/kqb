@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
-    "@types/node": "^12.20.35",
+    "@types/node": "^12.20.36",
     "eslint": "^7.32.0",
     "eslint-config-teppeis": "^14.0.1",
     "jest": "^27.2.5",
