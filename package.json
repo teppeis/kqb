@@ -32,7 +32,7 @@
     "unit": "jest --coverage"
   },
   "devDependencies": {
-    "@types/jest": "^27.4.0",
+    "@types/jest": "^27.4.1",
     "@types/node": "^12.20.46",
     "eslint": "^8.8.0",
     "eslint-config-teppeis": "^15.0.0",
