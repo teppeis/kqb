@@ -73,10 +73,14 @@ function mixinWithQueryFunctions<
         if (!Mixin) {
           return;
         }
-        const allProps = Object.getOwnPropertyDescriptors(Mixin.prototype);
+        const allProps = Object.getOwnPropertyDescriptors<any>(Mixin.prototype);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { constructor, ...props } = allProps;
-        Object.defineProperties(base, props);
+        // Work around for TS 4.6+ bug . This will be fixed in TS 4.8 beta.
+        const props2: {
+          [x: string]: TypedPropertyDescriptor<any> & PropertyDescriptor;
+        } = props;
+        Object.defineProperties(base, props2);
       });
       return base;
     }
