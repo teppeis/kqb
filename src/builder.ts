@@ -58,7 +58,9 @@ export class Builder<FieldDefs extends FieldDefinitionsTypes> {
     if (this.#orderByList.length > 0) {
       buf.push("order by");
       buf.push(
-        this.#orderByList.map(([field, direction]) => `${field} ${direction}`).join(", ")
+        this.#orderByList
+          .map(([field, direction]) => `${String(field)} ${direction}`)
+          .join(", ")
       );
     }
     if (this.#limit != null) {
