@@ -1,7 +1,7 @@
 {
   "root": true,
   "ignorePatterns": ["/coverage", "/dist"],
-  "extends": ["teppeis/node-v12", "teppeis/+typescript", "teppeis/+prettier"],
+  "extends": ["teppeis/node-v14", "teppeis/+typescript", "teppeis/+prettier"],
   "overrides": [
     {
       "files": ["*.test.ts"],
