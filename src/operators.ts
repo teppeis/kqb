@@ -107,7 +107,7 @@ class OperatorBase<Q extends QueryFunctionNames = QueryFunctionNames> {
         )
       );
     } else {
-      return this.singleCondition(op, value);
+      return this.singleCondition(op, value) as SingleCondition<Value>;
     }
   }
   protected inCondition<Value>(op: "in" | "not in", values: Value[]) {
