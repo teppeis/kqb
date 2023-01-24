@@ -479,7 +479,7 @@ export const FieldTypeOperators = {
 
 export type FieldTypeOperators = {
   [K in keyof typeof FieldTypeOperators]: [
-    InstanceType<typeof FieldTypeOperators[K][0]>,
-    InstanceType<typeof FieldTypeOperators[K][1]>
+    InstanceType<(typeof FieldTypeOperators)[K][0]>,
+    InstanceType<(typeof FieldTypeOperators)[K][1]>
   ];
 };
