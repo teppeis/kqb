@@ -1,7 +1,7 @@
 export const UserFunctionNames = ["LOGINUSER"] as const;
-export type UserFunctionNames = typeof UserFunctionNames[number];
+export type UserFunctionNames = (typeof UserFunctionNames)[number];
 export const OrganizationFunctionNames = ["PRIMARY_ORGANIZATION"] as const;
-export type OrganizationFunctionNames = typeof OrganizationFunctionNames[number];
+export type OrganizationFunctionNames = (typeof OrganizationFunctionNames)[number];
 export const DateFunctionNames = [
   "TODAY",
   "YESTERDAY",
@@ -17,15 +17,15 @@ export const DateFunctionNames = [
   "LAST_YEAR",
   "NEXT_YEAR",
 ] as const;
-export type DateFunctionNames = typeof DateFunctionNames[number];
+export type DateFunctionNames = (typeof DateFunctionNames)[number];
 export const DateTimeFunctionNames = ["NOW", ...DateFunctionNames] as const;
-export type DateTimeFunctionNames = typeof DateTimeFunctionNames[number];
+export type DateTimeFunctionNames = (typeof DateTimeFunctionNames)[number];
 export const QueryFunctionNames = [
   ...UserFunctionNames,
   ...OrganizationFunctionNames,
   ...DateTimeFunctionNames,
 ] as const;
-export type QueryFunctionNames = typeof QueryFunctionNames[number];
+export type QueryFunctionNames = (typeof QueryFunctionNames)[number];
 
 type DistributeQueryFunction<T extends QueryFunctionNames> = T extends QueryFunctionNames
   ? QueryFunction<T>
