@@ -22,8 +22,6 @@ Type-safe query builder for [Kintone](https://www.kintone.com)
 $ npm install kqb
 ```
 
-_Requires TypeScript >= 4.1 (for [Template Literal Types](https://devblogs.microsoft.com/typescript/announcing-typescript-4-1/#template-literal-types))_
-
 ## Usage
 
 ```ts
@@ -310,7 +308,7 @@ MIT License: Teppei Sato &lt;teppeis@gmail.com&gt;
 [deps-url]: https://david-dm.org/teppeis/kqb
 [deps-count-image]: https://badgen.net/bundlephobia/dependency-count/kqb
 [node-version]: https://badgen.net/npm/node/kqb
-[ts-version]: https://badgen.net/badge/typescript/%3E=4.1?icon=typescript
+[ts-version]: https://badgen.net/badge/typescript/%3E=4.4?icon=typescript
 [license]: https://badgen.net/npm/license/kqb
 [ci-image]: https://github.com/teppeis/kqb/workflows/ci/badge.svg
 [ci-url]: https://github.com/teppeis/kqb/actions?query=workflow%3Aci
