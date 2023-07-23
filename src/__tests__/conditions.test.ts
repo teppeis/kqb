@@ -65,7 +65,7 @@ describe("and()", () => {
   });
   test("two conditions", () => {
     expect(and(eq("foo", "bar"), eq("baz", "qux")).toQuery()).toBe(
-      `(foo = "bar" and baz = "qux")`
+      `(foo = "bar" and baz = "qux")`,
     );
   });
 });
@@ -80,7 +80,7 @@ describe("or()", () => {
   });
   test("two condition", () => {
     expect(or(eq("foo", "bar"), eq("baz", "qux")).toQuery()).toBe(
-      `(foo = "bar" or baz = "qux")`
+      `(foo = "bar" or baz = "qux")`,
     );
   });
 });

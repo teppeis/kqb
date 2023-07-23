@@ -22,7 +22,7 @@ describe("createBuilder", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .not_existing_operator(value)
+          .not_existing_operator(value),
       ).toThrow();
     });
     test("returned builder and field work", () => {
@@ -33,7 +33,7 @@ describe("createBuilder", () => {
           .orderBy("baz", "asc")
           .limit(100)
           .offset(200)
-          .build()
+          .build(),
       ).toBe('foo = "bar" order by baz asc limit 100 offset 200');
     });
   });
@@ -70,12 +70,12 @@ describe("createBuilder", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .in(d)
+          .in(d),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like(d)
+          .like(d),
       ).toThrow();
     });
     test("DATE field in a subtable returns DateOperatorForTable", () => {
@@ -87,12 +87,12 @@ describe("createBuilder", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .eq(d)
+          .eq(d),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like(d)
+          .like(d),
       ).toThrow();
     });
     test("DATE field in a reference table returns DateOperatorForTable", () => {
@@ -104,12 +104,12 @@ describe("createBuilder", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .eq(d)
+          .eq(d),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like(d)
+          .like(d),
       ).toThrow();
     });
   });
