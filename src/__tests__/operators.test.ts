@@ -37,7 +37,7 @@ describe("AnyOperator", () => {
     expect(() =>
       operator
         // @ts-expect-error
-        .not_existing_operator("1")
+        .not_existing_operator("1"),
     ).toThrow();
   });
 });
@@ -54,7 +54,7 @@ describe("NumericOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .like("1")
+          .like("1"),
       ).toThrow();
     });
     test("accepts a number value", () => {
@@ -71,12 +71,12 @@ describe("NumericOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .like("1")
+          .like("1"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .eq("1")
+          .eq("1"),
       ).toThrow();
     });
   });
@@ -92,17 +92,17 @@ describe("TextOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .eq("bar")
+          .eq("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .gt("bar")
+          .gt("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .in("bar")
+          .in("bar"),
       ).toThrow();
     });
   });
@@ -125,7 +125,7 @@ describe("StringOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .gt("bar")
+          .gt("bar"),
       ).toThrow();
     });
   });
@@ -139,12 +139,12 @@ describe("StringOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .eq("bar")
+          .eq("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .gt("bar")
+          .gt("bar"),
       ).toThrow();
     });
   });
@@ -160,17 +160,17 @@ describe("SelectionOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .eq("bar")
+          .eq("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .gt("bar")
+          .gt("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like("bar")
+          .like("bar"),
       ).toThrow();
     });
   });
@@ -191,17 +191,17 @@ describe("UserOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .eq("bar")
+          .eq("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .gt("bar")
+          .gt("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like("bar")
+          .like("bar"),
       ).toThrow();
     });
     test("accepts LOGINUSER()", () => {
@@ -226,25 +226,25 @@ describe("OrganizaionOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .eq("bar")
+          .eq("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .gt("bar")
+          .gt("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like("bar")
+          .like("bar"),
       ).toThrow();
     });
     test("accepts PRIMARY_ORGANIZATION()", () => {
       expect(operator.in(PRIMARY_ORGANIZATION()).toQuery()).toBe(
-        "foo in (PRIMARY_ORGANIZATION())"
+        "foo in (PRIMARY_ORGANIZATION())",
       );
       expect(operator.in().PRIMARY_ORGANIZATION().toQuery()).toBe(
-        "foo in (PRIMARY_ORGANIZATION())"
+        "foo in (PRIMARY_ORGANIZATION())",
       );
     });
   });
@@ -266,12 +266,12 @@ describe("StatusOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .gt("bar")
+          .gt("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like("bar")
+          .like("bar"),
       ).toThrow();
     });
   });
@@ -284,17 +284,17 @@ describe("StatusOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .eq("bar")
+          .eq("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .gt("bar")
+          .gt("bar"),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like("bar")
+          .like("bar"),
       ).toThrow();
     });
   });
@@ -312,12 +312,12 @@ describe("TimeOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .in(value)
+          .in(value),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like(value)
+          .like(value),
       ).toThrow();
     });
   });
@@ -331,12 +331,12 @@ describe("TimeOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .eq(value)
+          .eq(value),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like(value)
+          .like(value),
       ).toThrow();
     });
   });
@@ -354,12 +354,12 @@ describe("DateTimeOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .in(value)
+          .in(value),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like(value)
+          .like(value),
       ).toThrow();
     });
     test("accepts query functions", () => {
@@ -372,7 +372,7 @@ describe("DateTimeOperators", () => {
       expect(operator.eq().YESTERDAY().toQuery()).toBe("foo = YESTERDAY()");
       expect(operator.eq().TOMORROW().toQuery()).toBe("foo = TOMORROW()");
       expect(operator.eq().FROM_TODAY(1, "DAYS").toQuery()).toBe(
-        "foo = FROM_TODAY(1, DAYS)"
+        "foo = FROM_TODAY(1, DAYS)",
       );
       expect(operator.eq().LAST_WEEK().toQuery()).toBe("foo = LAST_WEEK()");
       expect(operator.eq().LAST_WEEK("FRIDAY").toQuery()).toBe("foo = LAST_WEEK(FRIDAY)");
@@ -398,12 +398,12 @@ describe("DateTimeOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .eq(value)
+          .eq(value),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like(value)
+          .like(value),
       ).toThrow();
     });
     test("accepts query functions", () => {
@@ -416,18 +416,18 @@ describe("DateTimeOperators", () => {
       expect(operator.in().YESTERDAY().toQuery()).toBe("foo in (YESTERDAY())");
       expect(operator.in().TOMORROW().toQuery()).toBe("foo in (TOMORROW())");
       expect(operator.in().FROM_TODAY(1, "DAYS").toQuery()).toBe(
-        "foo in (FROM_TODAY(1, DAYS))"
+        "foo in (FROM_TODAY(1, DAYS))",
       );
       expect(operator.in().LAST_WEEK().toQuery()).toBe("foo in (LAST_WEEK())");
       expect(operator.in().LAST_WEEK("FRIDAY").toQuery()).toBe(
-        "foo in (LAST_WEEK(FRIDAY))"
+        "foo in (LAST_WEEK(FRIDAY))",
       );
       expect(operator.in().THIS_WEEK().toQuery()).toBe("foo in (THIS_WEEK())");
       expect(operator.in().NEXT_WEEK().toQuery()).toBe("foo in (NEXT_WEEK())");
       expect(operator.in().LAST_MONTH().toQuery()).toBe("foo in (LAST_MONTH())");
       expect(operator.in().LAST_MONTH(1).toQuery()).toBe("foo in (LAST_MONTH(1))");
       expect(operator.in().LAST_MONTH("LAST").toQuery()).toBe(
-        "foo in (LAST_MONTH(LAST))"
+        "foo in (LAST_MONTH(LAST))",
       );
       expect(operator.in().THIS_MONTH().toQuery()).toBe("foo in (THIS_MONTH())");
       expect(operator.in().NEXT_MONTH().toQuery()).toBe("foo in (NEXT_MONTH())");
@@ -450,12 +450,12 @@ describe("DateOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .in(value)
+          .in(value),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like(value)
+          .like(value),
       ).toThrow();
     });
     test("accepts query functions", () => {
@@ -467,13 +467,13 @@ describe("DateOperators", () => {
     test("doesn't accept NOW()", () => {
       operator.eq(
         // @ts-expect-error
-        NOW()
+        NOW(),
       );
       expect(() =>
         operator
           .eq()
           // @ts-expect-error
-          .NOW()
+          .NOW(),
       ).toThrow();
     });
   });
@@ -487,12 +487,12 @@ describe("DateOperators", () => {
       expect(() =>
         operator
           // @ts-expect-error
-          .eq(value)
+          .eq(value),
       ).toThrow();
       expect(() =>
         operator
           // @ts-expect-error
-          .like(value)
+          .like(value),
       ).toThrow();
     });
     test("accepts query functions", () => {

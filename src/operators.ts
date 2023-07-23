@@ -23,19 +23,19 @@ type Class<ConstructorArgs extends any[], InstanceType> = {
 
 type OperatorBaseConstructorArgs<Q extends QueryFunctionNames = QueryFunctionNames> = [
   fieldCode: string,
-  queryFunctionNames: readonly Q[] | undefined
+  queryFunctionNames: readonly Q[] | undefined,
 ];
 
 function mixin<
   MixinInstance1 extends OperatorBase,
   MixinInstance2 extends OperatorBase = OperatorBase,
   MixinInstance3 extends OperatorBase = OperatorBase,
-  MixinInstance4 extends OperatorBase = OperatorBase
+  MixinInstance4 extends OperatorBase = OperatorBase,
 >(
   Mixin1: Class<OperatorBaseConstructorArgs<never>, MixinInstance1>,
   Mixin2?: Class<OperatorBaseConstructorArgs<never>, MixinInstance2>,
   Mixin3?: Class<OperatorBaseConstructorArgs<never>, MixinInstance3>,
-  Mixin4?: Class<OperatorBaseConstructorArgs<never>, MixinInstance4>
+  Mixin4?: Class<OperatorBaseConstructorArgs<never>, MixinInstance4>,
 ): Class<
   [fieldCode: string],
   OperatorBase & MixinInstance1 & MixinInstance2 & MixinInstance3 & MixinInstance4
@@ -54,13 +54,13 @@ function mixinWithQueryFunctions<
   MixinInstance1 extends OperatorBase,
   MixinInstance2 extends OperatorBase = OperatorBase,
   MixinInstance3 extends OperatorBase = OperatorBase,
-  MixinInstance4 extends OperatorBase = OperatorBase
+  MixinInstance4 extends OperatorBase = OperatorBase,
 >(
   queryFunctionNames: readonly Q[],
   Mixin1: Class<OperatorBaseConstructorArgs<Q>, MixinInstance1>,
   Mixin2?: Class<OperatorBaseConstructorArgs<Q>, MixinInstance2>,
   Mixin3?: Class<OperatorBaseConstructorArgs<Q>, MixinInstance3>,
-  Mixin4?: Class<OperatorBaseConstructorArgs<Q>, MixinInstance4>
+  Mixin4?: Class<OperatorBaseConstructorArgs<Q>, MixinInstance4>,
 ): Class<
   [fieldCode: string],
   OperatorBase & MixinInstance1 & MixinInstance2 & MixinInstance3 & MixinInstance4
@@ -103,8 +103,8 @@ class OperatorBase<Q extends QueryFunctionNames = QueryFunctionNames> {
       const functions = queryFunctionsSingle(this.#field, op);
       return Object.fromEntries(
         Object.entries(functions).filter(([func]) =>
-          this.#queryFunctionNames.includes(func as any)
-        )
+          this.#queryFunctionNames.includes(func as any),
+        ),
       );
     } else {
       return this.singleCondition(op, value) as SingleCondition<Value>;
@@ -118,8 +118,8 @@ class OperatorBase<Q extends QueryFunctionNames = QueryFunctionNames> {
       const functions = queryFunctionsIn(this.#field, op);
       return Object.fromEntries(
         Object.entries(functions).filter(([func]) =>
-          this.#queryFunctionNames.includes(func as any)
-        )
+          this.#queryFunctionNames.includes(func as any),
+        ),
       );
     } else {
       return this.inCondition(op, values);
@@ -196,7 +196,7 @@ class EqualOperatorMixin<Value> extends OperatorBase {
 
 class EqualOperatorMixinWithFunction<
   Value,
-  Q extends QueryFunctionNames
+  Q extends QueryFunctionNames,
 > extends OperatorBase<Q> {
   /**
    * `=` operator
@@ -244,7 +244,7 @@ class InequalOperatorMixin<Value> extends OperatorBase {
 }
 class InequalOperatorMixinWithFunction<
   Value,
-  Q extends QueryFunctionNames
+  Q extends QueryFunctionNames,
 > extends OperatorBase<Q> {
   /**
    * `>` operator
@@ -311,7 +311,7 @@ class InOperatorMixin<Value> extends OperatorBase {
 
 class InOperatorMixinWithFunction<
   Value,
-  Q extends QueryFunctionNames
+  Q extends QueryFunctionNames,
 > extends OperatorBase<Q> {
   /**
    * `in` operator
@@ -352,7 +352,7 @@ const StringOperator = mixin<
 
 const StringOperatorForTable = mixin<InOperatorMixin<string>, LikeOperatorMixin>(
   InOperatorMixin,
-  LikeOperatorMixin
+  LikeOperatorMixin,
 );
 
 export const StringOperators = [StringOperator, StringOperatorForTable] as const;
@@ -367,11 +367,11 @@ function createSelectionOperator<T>() {
 export const SelectionOperators = createSelectionOperator<string>();
 
 function createSelectionOperatorWithFunction<T, Q extends QueryFunctionNames>(
-  queryFunctionNames: readonly Q[]
+  queryFunctionNames: readonly Q[],
 ) {
   const SelectionOperator = mixinWithQueryFunctions<Q, InOperatorMixinWithFunction<T, Q>>(
     queryFunctionNames,
-    InOperatorMixinWithFunction
+    InOperatorMixinWithFunction,
   );
   return [SelectionOperator, SelectionOperator] as const;
 }
@@ -386,7 +386,7 @@ export const OrganizaionOperators = createSelectionOperatorWithFunction<
 
 const StatusOperator = mixin<EqualOperatorMixin<string>, InOperatorMixin<string>>(
   EqualOperatorMixin,
-  InOperatorMixin
+  InOperatorMixin,
 );
 
 // NOTE: not in use
@@ -397,12 +397,12 @@ export const StatusOperators = [StatusOperator, StatusOperatorForTable] as const
 function createTimeOperator<T>() {
   const TimeOperator = mixin<EqualOperatorMixin<T>, InequalOperatorMixin<T>>(
     EqualOperatorMixin,
-    InequalOperatorMixin
+    InequalOperatorMixin,
   );
 
   const TimeOperatorForTable = mixin<InOperatorMixin<T>, InequalOperatorMixin<T>>(
     InOperatorMixin,
-    InequalOperatorMixin
+    InequalOperatorMixin,
   );
 
   return [TimeOperator, TimeOperatorForTable] as const;
@@ -410,7 +410,7 @@ function createTimeOperator<T>() {
 export const TimeOperators = createTimeOperator<string>();
 
 function createDateTimeOperator<T, Q extends QueryFunctionNames>(
-  queryFunctionNames: readonly Q[]
+  queryFunctionNames: readonly Q[],
 ) {
   const DateTimeOperator = mixinWithQueryFunctions<
     Q,
@@ -446,7 +446,7 @@ export const AnyOperator = mixinWithQueryFunctions<
   EqualOperatorMixinWithFunction,
   InequalOperatorMixinWithFunction,
   InOperatorMixinWithFunction,
-  LikeOperatorMixin
+  LikeOperatorMixin,
 );
 export type AnyOperator = InstanceType<typeof AnyOperator>;
 
@@ -480,6 +480,6 @@ export const FieldTypeOperators = {
 export type FieldTypeOperators = {
   [K in keyof typeof FieldTypeOperators]: [
     InstanceType<(typeof FieldTypeOperators)[K][0]>,
-    InstanceType<(typeof FieldTypeOperators)[K][1]>
+    InstanceType<(typeof FieldTypeOperators)[K][1]>,
   ];
 };

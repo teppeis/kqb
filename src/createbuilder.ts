@@ -19,7 +19,7 @@ type SubtableFieldCodes<T extends FieldDefinitionsTypes> = {
 }[keyof T];
 type ConcatTableDotFieldCode<
   T extends FieldDefinitionsTypes,
-  TableType extends Subtable | ReferenceTable
+  TableType extends Subtable | ReferenceTable,
 > = {
   [K in StringKeyOf<T>]: T[K] extends TableType
     ? `${K}.${StringKeyOf<T[K]["$fields"]>}`
@@ -48,7 +48,7 @@ type FlattenSubtables<T extends FieldDefinitionsTypes> = {
 type FlattenTableField<
   T extends FieldDefinitionsTypes,
   TableType extends Subtable | ReferenceTable,
-  K extends ConcatTableDotFieldCode<T, TableType>
+  K extends ConcatTableDotFieldCode<T, TableType>,
 > = K extends `${infer TableCode}.${infer FieldCode}`
   ? TableCode extends keyof T
     ? T[TableCode] extends TableType
@@ -67,11 +67,11 @@ export function createBuilder(): {
   field: (fieldCode: string) => AnyOperator;
 };
 export function createBuilder<FieldDefs extends FieldDefinitionsTypes>(
-  fd: FieldDefs
+  fd: FieldDefs,
 ): {
   builder: Builder<WithBuiltin<FieldDefs>>;
   field: <FieldCode extends FlattenFieldCodes<WithBuiltin<FieldDefs>>>(
-    fieldCode: FieldCode
+    fieldCode: FieldCode,
   ) => WithBuiltin<FieldDefs>[FieldCode] extends FieldTypes
     ? Extract<FieldTypeOperators[WithBuiltin<FieldDefs>[FieldCode]], [any, any]>[0]
     : FieldCode extends keyof FlattenSubtables<FieldDefs>
@@ -83,12 +83,12 @@ export function createBuilder<FieldDefs extends FieldDefinitionsTypes>(
     : never;
 };
 export function createBuilder<FieldDefs extends FieldDefinitionsTypes = any>(
-  fd?: FieldDefs
+  fd?: FieldDefs,
 ) {
   return {
     builder: new Builder<WithBuiltin<FlattenFields<FieldDefs>>>(),
     field: <FieldCode extends FlattenFieldCodes<WithBuiltin<FieldDefs>>>(
-      fieldCode: FieldCode
+      fieldCode: FieldCode,
     ) => {
       if (!fd) {
         return new AnyOperator(fieldCode);
@@ -120,7 +120,7 @@ function toFieldType<T extends FieldTypes>(fieldType: T): FieldTypes {
 
 function findSubtableField<FieldDefs extends FieldDefinitionsTypes>(
   fd: FieldDefs,
-  fieldCode: string
+  fieldCode: string,
 ): FieldTypes | null {
   for (const [, props] of Object.entries(fd)) {
     if (typeof props === "object" && props.$type === "SUBTABLE") {
@@ -136,7 +136,7 @@ function findSubtableField<FieldDefs extends FieldDefinitionsTypes>(
 
 function findRefTableField<FieldDefs extends FieldDefinitionsTypes>(
   fd: FieldDefs,
-  fieldCode: string
+  fieldCode: string,
 ): FieldTypes | null {
   for (const [tableCode, props] of Object.entries(fd)) {
     if (typeof props === "object" && props.$type === "REFERENCE_TABLE") {

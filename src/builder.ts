@@ -34,7 +34,7 @@ type OrderByTargetFieldNames<T> = {
 type OrderByDirection = "asc" | "desc";
 type OrderByTargetPair<FieldDefs> = [
   field: OrderByTargetFieldNames<FieldDefs>,
-  direction: OrderByDirection
+  direction: OrderByDirection,
 ];
 
 export class Builder<FieldDefs extends FieldDefinitionsTypes> {
@@ -50,9 +50,9 @@ export class Builder<FieldDefs extends FieldDefinitionsTypes> {
         this.#condisions
           .map(
             ({ joiner, condition }, index) =>
-              `${index > 0 ? `${joiner} ` : ""}${condition.toQuery()}`
+              `${index > 0 ? `${joiner} ` : ""}${condition.toQuery()}`,
           )
-          .join(" ")
+          .join(" "),
       );
     }
     if (this.#orderByList.length > 0) {
@@ -60,7 +60,7 @@ export class Builder<FieldDefs extends FieldDefinitionsTypes> {
       buf.push(
         this.#orderByList
           .map(([field, direction]) => `${String(field)} ${direction}`)
-          .join(", ")
+          .join(", "),
       );
     }
     if (this.#limit != null) {
@@ -84,7 +84,7 @@ export class Builder<FieldDefs extends FieldDefinitionsTypes> {
   }
   orderBy(
     field: OrderByTargetFieldNames<FieldDefs>,
-    direction: OrderByDirection
+    direction: OrderByDirection,
   ): Builder<FieldDefs>;
   orderBy(
     pair: OrderByTargetPair<FieldDefs>,

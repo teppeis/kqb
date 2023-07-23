@@ -45,7 +45,7 @@ type FieldTypes<Props extends FieldsJsonType["properties"]> = {
 };
 
 export function convertFieldsJsonToDefs<FieldsJson extends FieldsJsonType>(
-  fieldsJson: FieldsJson
+  fieldsJson: FieldsJson,
 ): FieldTypes<WithBuiltin<FieldsJson["properties"]>> {
   return convertFieldsJsonPropsToDefs(fieldsJson.properties);
 }
@@ -59,12 +59,12 @@ function isNormalFieldProp(entry: [string, any]): entry is [string, FieldPropert
 }
 
 function convertFieldsJsonPropsToDefs<
-  FieldsJsonProps extends FieldsJsonType["properties"]
+  FieldsJsonProps extends FieldsJsonType["properties"],
 >(fieldsJsonProps: FieldsJsonProps): FieldTypes<WithBuiltin<FieldsJsonProps>> {
   const normalProps = Object.fromEntries(
     Object.entries({ ...fieldsJsonProps, ...BuiltinProperty })
       .filter(isNormalFieldProp)
-      .map(([code, prop]) => [code, prop.type])
+      .map(([code, prop]) => [code, prop.type]),
   );
 
   const subtableProps = Object.fromEntries(
@@ -76,7 +76,7 @@ function convertFieldsJsonPropsToDefs<
           $type: "SUBTABLE",
           $fields: convertFieldsJsonPropsToDefs(prop.fields),
         } as const,
-      ])
+      ]),
   );
 
   return { ...normalProps, ...subtableProps } as FieldTypes<WithBuiltin<FieldsJsonProps>>;

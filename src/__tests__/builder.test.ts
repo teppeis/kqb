@@ -15,12 +15,12 @@ describe("Builder", () => {
   });
   test("orderBy(): multiple calls", () => {
     expect(builder.orderBy("foo", "asc").orderBy("bar", "desc").build()).toBe(
-      "order by foo asc, bar desc"
+      "order by foo asc, bar desc",
     );
   });
   test("orderBy(): multiple args", () => {
     expect(builder.orderBy(["foo", "asc"], ["bar", "desc"]).build()).toBe(
-      "order by foo asc, bar desc"
+      "order by foo asc, bar desc",
     );
   });
   test("limit()", () => {
@@ -34,12 +34,12 @@ describe("Builder", () => {
   });
   test("where().and()", () => {
     expect(builder.where(eq()).and(eq("baz", "qux")).build()).toBe(
-      `foo = "bar" and baz = "qux"`
+      `foo = "bar" and baz = "qux"`,
     );
   });
   test("where().or()", () => {
     expect(builder.where(eq()).or(eq("baz", "qux")).build()).toBe(
-      `foo = "bar" or baz = "qux"`
+      `foo = "bar" or baz = "qux"`,
     );
   });
   test("where(): nested conditions", () => {
@@ -50,13 +50,13 @@ describe("Builder", () => {
           and(
             condition("a1", "=", "a2"),
             condition("b1", "like", "b2"),
-            or(condition("c1", "!=", "c2"), condition("d1", "not like", "d2"))
-          )
+            or(condition("c1", "!=", "c2"), condition("d1", "not like", "d2")),
+          ),
         )
         .or(field("e1").eq("e2"))
-        .build()
+        .build(),
     ).toBe(
-      `(a1 = "a2" and b1 like "b2" and (c1 != "c2" or d1 not like "d2")) or e1 = "e2"`
+      `(a1 = "a2" and b1 like "b2" and (c1 != "c2" or d1 not like "d2")) or e1 = "e2"`,
     );
   });
 });

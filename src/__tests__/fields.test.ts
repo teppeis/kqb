@@ -23,7 +23,7 @@ describe("convertFieldsJsonToDefs", () => {
     const defs = convertFieldsJsonToDefs(fields);
     expect(
       // @ts-expect-error
-      defs.ref
+      defs.ref,
     ).toBe(undefined);
   });
   test("createBuilder", () => {
