@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x, 20.x]
+        node-version: [18.x, 20.x]
 
     steps:
       - uses: actions/checkout@v3
@@ -25,5 +25,5 @@ jobs:
       - run: npm test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-      - run: npm install typescript@4.4
+      - run: npm install typescript@5.0
       - run: npm test
