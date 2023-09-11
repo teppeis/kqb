@@ -308,7 +308,7 @@ MIT License: Teppei Sato &lt;teppeis@gmail.com&gt;
 [deps-url]: https://david-dm.org/teppeis/kqb
 [deps-count-image]: https://badgen.net/bundlephobia/dependency-count/kqb
 [node-version]: https://badgen.net/npm/node/kqb
-[ts-version]: https://badgen.net/badge/typescript/%3E=4.4?icon=typescript
+[ts-version]: https://badgen.net/badge/typescript/%3E=5.0?icon=typescript
 [license]: https://badgen.net/npm/license/kqb
 [ci-image]: https://github.com/teppeis/kqb/workflows/ci/badge.svg
 [ci-url]: https://github.com/teppeis/kqb/actions?query=workflow%3Aci
