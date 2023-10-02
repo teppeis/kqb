@@ -66,5 +66,5 @@ export const or = (condition: Condition, ...conditions: Condition[]) =>
  * Escape string literal in query parameters
  */
 function esc(str: string): string {
-  return str.replace(/"/g, '\\"');
+  return str.replaceAll('"', '\\"');
 }
