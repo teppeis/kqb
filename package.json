@@ -32,7 +32,7 @@
     "unit": "jest --coverage"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.5",
+    "@types/jest": "^29.5.6",
     "@types/node": "^18.18.5",
     "eslint": "^8.51.0",
     "eslint-config-flat-gitignore": "^0.1.1",
