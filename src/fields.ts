@@ -37,11 +37,11 @@ type FieldTypes<Props extends FieldsJsonType["properties"]> = {
   [Code in FieldTypeCodes<Props>]: Props[Code] extends { type: FieldTypeNames }
     ? Props[Code]["type"]
     : Props[Code] extends { type: "SUBTABLE" }
-    ? {
-        $type: "SUBTABLE";
-        $fields: FieldTypes<Props[Code]["fields"]>;
-      }
-    : never;
+      ? {
+          $type: "SUBTABLE";
+          $fields: FieldTypes<Props[Code]["fields"]>;
+        }
+      : never;
 };
 
 export function convertFieldsJsonToDefs<FieldsJson extends FieldsJsonType>(
