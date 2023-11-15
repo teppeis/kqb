@@ -75,12 +75,15 @@ export function createBuilder<FieldDefs extends FieldDefinitionsTypes>(
   ) => WithBuiltin<FieldDefs>[FieldCode] extends FieldTypes
     ? Extract<FieldTypeOperators[WithBuiltin<FieldDefs>[FieldCode]], [any, any]>[0]
     : FieldCode extends keyof FlattenSubtables<FieldDefs>
-    ? FlattenSubtables<FieldDefs>[FieldCode] extends keyof FieldTypeOperators
-      ? Extract<FieldTypeOperators[FlattenSubtables<FieldDefs>[FieldCode]], [any, any]>[1]
-      : never
-    : FieldCode extends keyof FlattenRefTables<FieldDefs>
-    ? FieldTypeOperators[FlattenRefTables<FieldDefs>[FieldCode]][1]
-    : never;
+      ? FlattenSubtables<FieldDefs>[FieldCode] extends keyof FieldTypeOperators
+        ? Extract<
+            FieldTypeOperators[FlattenSubtables<FieldDefs>[FieldCode]],
+            [any, any]
+          >[1]
+        : never
+      : FieldCode extends keyof FlattenRefTables<FieldDefs>
+        ? FieldTypeOperators[FlattenRefTables<FieldDefs>[FieldCode]][1]
+        : never;
 };
 export function createBuilder<FieldDefs extends FieldDefinitionsTypes = any>(
   fd?: FieldDefs,
