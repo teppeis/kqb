@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "@types/node": "^18.19.43",
+    "@types/node": "^18.19.44",
     "eslint": "^8.57.0",
     "eslint-config-flat-gitignore": "^0.1.8",
     "eslint-config-teppeis": "^19.1.2",
